@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ToastrService } from 'ngx-toastr';
 import { MemberComplaintService } from '../../../Services/member-complaint.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-member-complaint',
@@ -40,14 +41,30 @@ export class ShowMemberComplaintComponent implements OnInit {
   }
 
   deleteComplaint(id: number) {
-    this.service.deleteComplaint(id).subscribe({
-      next: () => {
-        this.toastr.success('🗑️ تم الحذف');
-        this.complaints = this.complaints.filter(x => x.id !== id);
-      },
-      error: () => this.toastr.error('❌ فشل في الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.service.deleteComplaint(id).subscribe({
+          next: () => {
+            this.complaints = this.complaints.filter(x => x.id !== id);
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
   exportToExcel() {
     const exportData = this.complaints.map(c => ({

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { Injury } from '../../../Interfaces/injury';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-injury-list',
@@ -76,14 +77,30 @@ export class InjuryListComponent implements OnInit {
   }
 
   deleteInjury(id: number) {
-    this.injuryService.delete(id).subscribe({
-      next: () => {
-        this.toastr.success('🗑️ تم الحذف');
-        this.getInjuries();
-      },
-      error: () => this.toastr.error('❌ فشل في الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.injuryService.delete(id).subscribe({
+          next: () => {
+            this.getInjuries(); // تحديث القائمة
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
 
   exportToExcel(): void {

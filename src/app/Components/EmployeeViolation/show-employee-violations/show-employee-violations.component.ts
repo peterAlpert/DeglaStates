@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-employee-violations',
@@ -41,14 +42,30 @@ export class ShowEmployeeViolationsComponent implements OnInit {
   }
 
   deleteViolation(id: number) {
-    this._EmployeeViolationService.deleteViolation(id).subscribe({
-      next: () => {
-        this.toastr.success('🗑️ تم الحذف بنجاح');
-        this.getViolations();
-      },
-      error: () => this.toastr.error('⚠️ فشل في الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._EmployeeViolationService.deleteViolation(id).subscribe({
+          next: () => {
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+            this.getViolations(); // أو حدث المصفوفة يدويًا لو حبيت
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
   exportToExcel() {
     const exportData = this.violations.map(v => ({

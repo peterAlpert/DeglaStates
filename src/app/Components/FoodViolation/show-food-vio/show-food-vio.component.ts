@@ -4,6 +4,7 @@ import { GeneralViolationService } from '../../../Services/general-violation.ser
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-food-vio',
@@ -83,14 +84,30 @@ export class ShowFoodVioComponent {
   }
 
   deleteViolation(id: number) {
-    this._service.deleteViolation(id).subscribe({
-      next: () => {
-        this._toastr.success('🗑️ تم الحذف');
-        this.getViolations();
-      },
-      error: () => this._toastr.error('❌ فشل في الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._service.deleteViolation(id).subscribe({
+          next: () => {
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+            this.getViolations();
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
   exportToExcel(): void {
     const exportData = this.allViolations.map((v, i) => ({

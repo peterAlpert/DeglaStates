@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
 import { HttpClient } from '@angular/common/http';
 import { OffensiveWordsService } from '../../../Services/offensive-words.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-offensive-words-view',
@@ -40,17 +41,30 @@ export class OffensiveWordsViewComponent {
   }
 
   deleteRecord(id: number) {
-    if (confirm('هل أنت متأكد من الحذف؟')) {
-      this.servics.delete(id)
-        .subscribe({
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.servics.delete(id).subscribe({
           next: () => {
             this.records = this.records.filter(r => r.id !== id);
-            this.toastr.success('🗑️ تم الحذف');
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
           },
-          error: () => this.toastr.error('❌ فشل في الحذف')
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
         });
-    }
+      }
+    });
   }
+
 
   exportToExcel() {
     const exportData = this.records.map((r, i) => ({

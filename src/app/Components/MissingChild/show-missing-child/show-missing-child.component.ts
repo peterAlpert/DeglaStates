@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
 import { MissingChildService } from '../../../Services/missing-child.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-missing-child',
@@ -67,14 +68,30 @@ export class ShowMissingChildComponent implements OnInit {
 
 
   deleteChild(id: number) {
-    this._MissingChildService.deleteChild(id).subscribe({
-      next: () => {
-        this.toastr.success('🗑️ تم الحذف');
-        this.getChildren();
-      },
-      error: () => this.toastr.error('❌ فشل الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._MissingChildService.deleteChild(id).subscribe({
+          next: () => {
+            this.getChildren(); // تحديث القائمة بعد الحذف
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
   exportToExcel(): void {
     // إعداد جدول البيانات

@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { LostItemsService } from '../../../Services/lost-items.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-lost-items-list',
@@ -36,16 +37,30 @@ export class LostItemsListComponent implements OnInit {
   }
 
   deleteItem(id: number) {
-    if (confirm('هل أنت متأكد من الحذف؟')) {
-      this.service.deleteItem(id).subscribe({
-        next: () => {
-          this.lostItems = this.lostItems.filter((x) => x.id !== id);
-          this.toastr.success('🗑️ تم الحذف');
-        },
-        error: () => this.toastr.error('❌ فشل في الحذف')
-      });
-    }
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.service.deleteItem(id).subscribe({
+          next: () => {
+            this.lostItems = this.lostItems.filter((x) => x.id !== id);
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
+    });
   }
+
 
   exportToExcel(): void {
     // تحويل البيانات لعناوين عربية

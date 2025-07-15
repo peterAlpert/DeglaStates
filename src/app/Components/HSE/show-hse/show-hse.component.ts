@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
 import { HSEService } from '../../../Services/hse.service';
 import { HSE } from '../../../Interfaces/hse';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-hse',
@@ -37,16 +38,30 @@ export class ShowHSEComponent implements OnInit {
   }
 
   deleteHSE(id: number) {
-    if (confirm('هل أنت متأكد من الحذف؟')) {
-      this._service.deleteHSE(id).subscribe({
-        next: () => {
-          this.hseList = this.hseList.filter(item => item.id !== id);
-          this.toastr.success('🗑️ تم الحذف');
-        },
-        error: () => this.toastr.error('فشل في الحذف')
-      });
-    }
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._service.deleteHSE(id).subscribe({
+          next: () => {
+            this.hseList = this.hseList.filter(item => item.id !== id);
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
+    });
   }
+
 
   exportToExcel(): void {
     const exportData = this.hseList.map(h => ({

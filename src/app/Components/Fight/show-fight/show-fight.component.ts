@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FightService } from '../../../Services/fight.service';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-fight',
@@ -63,14 +64,30 @@ export class ShowFightComponent implements OnInit {
   }
 
   deleteFight(id: number) {
-    this.fightService.deleteFight(id).subscribe({
-      next: () => {
-        this.toastr.success('🗑️ تم الحذف');
-        this.getFights();
-      },
-      error: () => this.toastr.error('❌ فشل في الحذف')
+    Swal.fire({
+      title: 'هل أنت متأكد؟',
+      text: 'سيتم حذف هذا السجل نهائيًا!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.fightService.deleteFight(id).subscribe({
+          next: () => {
+            Swal.fire('تم الحذف!', '✅ تم حذف السجل بنجاح.', 'success');
+            this.getFights();
+          },
+          error: () => {
+            Swal.fire('خطأ', '❌ فشل في حذف السجل.', 'error');
+          }
+        });
+      }
     });
   }
+
 
   exportToExcel() {
     const exportData = this.fights.map((f, i) => ({
