@@ -4,7 +4,6 @@ import { PlaceViolationService } from '../../../Services/place-violation.service
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import { FormsModule } from '@angular/forms';
 import { PlaceViolation } from '../../../Interfaces/place-violation';
 import Swal from 'sweetalert2';
@@ -201,9 +200,8 @@ export class ShowPlaceVioComponent implements OnInit {
       SheetNames: ['سجل المخالفات']
     };
 
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'سجل_المخالفات.xlsx');
+    XLSX.writeFile(workbook, 'سجل_المخالفات.xlsx');
+    this._ToastrService?.success("تم تصدير سجل مخالفات المحلات ")
   }
 
 

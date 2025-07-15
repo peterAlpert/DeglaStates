@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import { MemberComplaintService } from '../../../Services/member-complaint.service';
 
@@ -66,8 +65,9 @@ export class ShowMemberComplaintComponent implements OnInit {
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
     const workbook: XLSX.WorkBook = { Sheets: { 'الشكاوى': worksheet }, SheetNames: ['الشكاوى'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'شكاوى_الاعضاء.xlsx');
+
+    XLSX.writeFile(workbook, 'شكاوى_الاعضاء.xlsx');
+    this.toastr.success('📁 تم تصدير الشكاوى بنجاح');
+
   }
 }

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { FightService } from '../../../Services/fight.service';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-show-fight',
@@ -137,9 +136,9 @@ export class ShowFightComponent implements OnInit {
       SheetNames: ['سجل المشاجرات']
     };
 
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'سجل_المشاجرات.xlsx');
+    XLSX.writeFile(workbook, 'سجل_المشاجرات.xlsx');
+    this.toastr.success('📁 تم تصدير الملف بنجاح');
+
   }
 
 

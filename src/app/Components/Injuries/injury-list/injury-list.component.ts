@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { InjuryService } from '../../../Services/injury.service';
 import { ToastrService } from 'ngx-toastr';
-import * as ExcelJS from 'exceljs';
-import * as FileSaver from 'file-saver';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
 import { Injury } from '../../../Interfaces/injury';
 
 @Component({
@@ -87,67 +86,30 @@ export class InjuryListComponent implements OnInit {
   }
 
 
-  exportToExcel() {
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('الإصابات');
+  exportToExcel(): void {
+    const exportData = this.injuries.map(i => ({
+      'التاريخ': i.date,
+      'اليوم': i.day,
+      'التوقيت': i.time,
+      'المكان': i.location,
+      'اسم العضو المصاب': i.memberName,
+      'رقم العضوية': i.membershipNo,
+      'نوع الإصابة': i.injuryType,
+      'سبب الإصابة': i.cause,
+      'الإجراء': i.action,
+      'مسؤول السلامة': i.safetyOfficer,
+      'المسعف/الطبيب': i.medic,
+      'الكنترول': i.control,
+      'المشرف': i.supervisor,
+      'ملاحظات': i.notes
+    }));
 
-    // ✅ 1. تعريف الأعمدة بثبات العرض
-    sheet.columns = [
-      { header: 'التاريخ', key: 'date', width: 15 },
-      { header: 'اليوم', key: 'day', width: 10 },
-      { header: 'التوقيت', key: 'time', width: 10 },
-      { header: 'المكان', key: 'location', width: 15 },
-      { header: 'اسم العضو المصاب', key: 'memberName', width: 15 },
-      { header: 'رقم العضوية', key: 'membershipNo', width: 12 },
-      { header: 'نوع الإصابة', key: 'injuryType', width: 10 },
-      { header: 'سبب الإصابة', key: 'cause', width: 25 },
-      { header: 'الإجراء', key: 'action', width: 35 },
-      { header: 'مسؤول السلامة', key: 'safetyOfficer', width: 15 },
-      { header: 'المسعف/الطبيب', key: 'medic', width: 18 },
-      { header: 'الكنترول', key: 'control', width: 15 },
-      { header: 'المشرف', key: 'supervisor', width: 15 },
-      { header: 'ملاحظات', key: 'notes', width: 15 }
-    ];
+    const ws = XLSX.utils.json_to_sheet(exportData);
 
-    // ✅ 2. إدخال البيانات
-    this.injuries.forEach(i => {
-      sheet.addRow({
-        date: i.date,
-        day: i.day,
-        time: i.time,
-        location: i.location,
-        memberName: i.memberName,
-        membershipNo: i.membershipNo,
-        injuryType: i.injuryType,
-        cause: i.cause,
-        action: i.action,
-        safetyOfficer: i.safetyOfficer,
-        medic: i.medic,
-        control: i.control,
-        supervisor: i.supervisor,
-        notes: i.notes
-      });
-    });
+    const statsStartRow = exportData.length + 3;
 
-    // ✅ 3. تنسيق العناوين
-    sheet.getRow(1).font = { bold: true };
-    sheet.getRow(1).alignment = { horizontal: 'center' };
-
-    // ✅ 4. سطر فاصل رمادي
-    const separatorRow = sheet.addRow(['']);
-    separatorRow.getCell(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'D9D9D9' }
-    };
-
-    // ✅ 5. عنوان جدول الإحصائيات (في منتصف الصفحة)
-    const statsTitle = sheet.addRow(['', '', '', '', '', '', '📊 إحصائيات الإصابات']);
-    statsTitle.font = { bold: true, size: 14 };
-    statsTitle.alignment = { horizontal: 'center' };
-
-    // ✅ 6. جدول الإحصائيات
     const stats = [
+      ['الوصف', 'العدد'],
       ['إجمالي الذهاب إلى العيادة (إصابات خفيفة)', this.statistics.toClinic],
       ['إجمالي الذهاب إلى العيادة والتوجيه للمستشفى (إصابات حرجة)', this.statistics.toHospital],
       ['إجمالي احضار المسعف فقط (إصابات خفيفة)', this.statistics.medicOnly],
@@ -156,36 +118,15 @@ export class InjuryListComponent implements OnInit {
       ['الإجمالي العام', this.statistics.total]
     ];
 
-    stats.forEach(item => {
-      const row = sheet.addRow(['', '', '', '', '', '', item[0], item[1]]);
-      row.eachCell((cell, colNumber) => {
-        if (colNumber >= 7) {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFF3CD' } // أصفر فاتح
-          };
-          cell.alignment = { horizontal: 'center' };
-          cell.font = { bold: true };
-          cell.border = {
-            top: { style: 'thin' },
-            bottom: { style: 'thin' },
-            left: { style: 'thin' },
-            right: { style: 'thin' }
-          };
-        }
-      });
-    });
+    XLSX.utils.sheet_add_aoa(ws, stats, { origin: { r: statsStartRow, c: 4 } });
 
-    // ✅ 7. توسيع أعمدة الإحصائيات
-    sheet.getColumn(7).width = 50; // الوصف
-    sheet.getColumn(8).width = 20; // العدد
+    ws['!cols'] = Array(14).fill({ wch: 20 });
+    ws['!cols'][6] = { wch: 50 }; // وصف الإحصائية
+    ws['!cols'][7] = { wch: 15 }; // العدد
 
-    // ✅ 8. حفظ الملف
-    workbook.xlsx.writeBuffer().then((buffer: ArrayBuffer) => {
-      const blob = new Blob([buffer], { type: 'application/octet-stream' });
-      FileSaver.saveAs(blob, 'سجل_الإصابات.xlsx');
-    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'سجل الإصابات');
+    XLSX.writeFile(wb, 'سجل_الإصابات.xlsx');
   }
 
 

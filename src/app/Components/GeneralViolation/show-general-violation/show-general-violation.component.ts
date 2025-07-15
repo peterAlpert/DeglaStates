@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { GeneralViolationService } from '../../../Services/general-violation.service';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-show-general-violation',
@@ -157,9 +156,9 @@ export class ShowGeneralViolationComponent implements OnInit {
       SheetNames: ['مخالفات الأعضاء']
     };
 
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'مخالفات_الأعضاء.xlsx');
+    XLSX.writeFile(workbook, 'مخالفات_الأعضاء.xlsx');
+    this._toastr.success('📁 تم تصدير الملف بنجاح');
+
   }
 
 

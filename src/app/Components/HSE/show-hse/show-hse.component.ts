@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import { HSEService } from '../../../Services/hse.service';
 import { HSE } from '../../../Interfaces/hse';
 
@@ -65,8 +64,10 @@ export class ShowHSEComponent implements OnInit {
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = { Sheets: { 'سجل HSE': worksheet }, SheetNames: ['سجل HSE'] };
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'سجل_HSE.xlsx');
+
+
+    XLSX.writeFile(workbook, 'سجل_HSE.xlsx');
+    this.toastr?.success('📁 تم تصدير سجل HSE بنجاح');
+
   }
 }

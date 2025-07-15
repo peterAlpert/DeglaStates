@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import { HttpClient } from '@angular/common/http';
 import { OffensiveWordsService } from '../../../Services/offensive-words.service';
 
@@ -82,8 +81,7 @@ export class OffensiveWordsViewComponent {
       SheetNames: ['الألفاظ الخارجة']
     };
 
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'سجل_الألفاظ_الخارجة.xlsx');
+    XLSX.writeFile(workbook, 'سجل_الألفاظ_الخارجة.xlsx');
+    this.toastr?.success('📁 تم تصدير سجل الألفاظ الخارجة');
   }
 }

@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import { MissingChildService } from '../../../Services/missing-child.service';
 
 @Component({
@@ -147,9 +146,9 @@ export class ShowMissingChildComponent implements OnInit {
       SheetNames: ['أطفال مفقودة']
     };
 
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'أطفال_مفقودة.xlsx');
+    XLSX.writeFile(workbook, 'أطفال_مفقودة.xlsx');
+    this.toastr?.success('📁 تم تصدير سجل الأطفال المفقودة بنجاح');
+
   }
 
 }

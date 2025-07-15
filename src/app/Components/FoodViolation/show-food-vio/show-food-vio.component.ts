@@ -4,7 +4,6 @@ import { GeneralViolationService } from '../../../Services/general-violation.ser
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-show-food-vio',
@@ -141,9 +140,9 @@ export class ShowFoodVioComponent {
       SheetNames: ['مخالفات الأكل']
     };
 
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'مخالفات_الأكل.xlsx');
+    XLSX.writeFile(workbook, 'مخالفات_الأكل.xlsx');
+    this._toastr.success('📁 تم تصدير الملف بنجاح');
+
   }
 
 

@@ -5,8 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-show-employee-violations',
@@ -68,9 +66,15 @@ export class ShowEmployeeViolationsComponent implements OnInit {
     }));
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook: XLSX.WorkBook = { Sheets: { 'مخالفات الموظفين': worksheet }, SheetNames: ['مخالفات الموظفين'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    FileSaver.saveAs(blob, 'مخالفات_الموظفين.xlsx');
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'مخالفات الموظفين': worksheet },
+      SheetNames: ['مخالفات الموظفين']
+    };
+
+    // استخدام writeFile مباشرة لحفظ الملف
+    XLSX.writeFile(workbook, 'مخالفات_الموظفين.xlsx');
+
+    this.toastr.success('📁 تم تصدير الملف بنجاح');
   }
+
 }
