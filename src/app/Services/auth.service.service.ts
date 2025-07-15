@@ -23,7 +23,7 @@ export class AuthService {
       tap((res) => {
         localStorage.setItem('token', res.token);
         this.setLoggedIn(true);
-        this.router.navigate(['/']);
+        this.router.navigate(['/'])
       })
     );
   }
