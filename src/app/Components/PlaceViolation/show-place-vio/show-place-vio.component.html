@@ -1,0 +1,108 @@
+<!-- show-place-vio.component.html -->
+<div class="table-responsive mt-4">
+    <div class="text-center mb-3">
+        <h4 class="text-warning fw-bold m-0">📋 سجلات مخالفات المحلات</h4>
+    </div>
+
+    <div class="my-5" dir="rtl">
+        <button class="btn btn-sm btn-outline-warning" (click)="getViolations()">
+            🔁 تحديث البيانات
+        </button>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center gap-3 my-5" dir="rtl">
+        <label class=" fw-bold">🔍 فلتر حسب اسم المحل:</label>
+
+        <select [(ngModel)]="selectedStore" class="form-select form-select-sm w-auto bg-dark text-light border-light">
+            <option value="">عرض كل المحلات</option>
+            <option *ngFor="let s of storeList" [value]="s">{{ s }}</option>
+        </select>
+
+        <button class="btn btn-sm btn-outline-danger" (click)="clearFilter()">
+            ❌ إزالة الفلتر
+        </button>
+    </div>
+
+
+    <table class="table table-bordered table-hover text-center align-middle custom-table mb-5">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>تاريخ</th>
+                <th>اليوم</th>
+                <th>التوقيت</th>
+                <th>المكان</th>
+                <th>اسم المحل</th>
+                <th>الكنترول</th>
+                <th>المشرف</th>
+                <th>المخالفة</th>
+                <th>الإجراء</th>
+                <th>💾</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let v of getFilteredViolations(); let i = index">
+                <td class="fw-bold">{{ i + 1 }}</td>
+                <td><input [(ngModel)]="v.date" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.day" class="form-control form-control-sm text-center" readonly /></td>
+                <td><input [(ngModel)]="v.time" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.location" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.store" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.violationType" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="v.action" class="form-control form-control-sm text-center" /></td>
+                <td>
+                    <button class="btn btn-success" (click)="updateViolation(v)" title="حفظ التعديل">💾</button>
+                </td>
+                <td>
+                    <button class="btn btn-danger" (click)="deleteViolation(v.id)" title="حذف السجل">🗑️</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 📊 إحصائيات مخالفات المحلات -->
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card shadow-lg bg-dark text-light w-50 border-warning">
+            <div class="card-body">
+                <h4 class="text-center mb-4 fw-bold" style="color: #FFD700;">📊 إحصائيات مخالفات المحلات</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle custom-table table-striped table-dark"
+                        dir="rtl">
+                        <thead class="table-warning text-dark">
+                            <tr>
+                                <th>اسم المحل</th>
+                                <th>عدد المخالفات</th>
+                                <th class="text-danger">عدد الإنذارات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let stat of storeStats">
+                                <td class="fw-bold">{{ stat.store }}</td>
+                                <td>{{ stat.count }}</td>
+                                <td class="text-danger fw-bold">{{ stat.warnings }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-warning fw-bold text-dark">
+                            <tr>
+                                <td>الإجمالي</td>
+                                <td>{{ totalViolations }}</td>
+                                <td class="text-danger">{{ totalWarnings }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-center my-4">
+        <button class="btn btn-outline-light btn-sm px-4 py-2" (click)="exportToExcel()">
+            🧾 تصدير إلى Excel
+        </button>
+    </div>
+</div>

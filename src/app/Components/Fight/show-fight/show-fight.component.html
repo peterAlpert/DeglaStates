@@ -1,0 +1,101 @@
+<div class="table-responsive mt-4">
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-warning" (click)="getFights()">🔁 تحديث البيانات</button>
+    </div>
+
+    <table class="table table-bordered table-hover text-center align-middle custom-table mb-5">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>اليوم</th>
+                <th>التوقيت</th>
+                <th>المكان</th>
+                <th>الطرف الأول</th>
+                <th>عضوية</th>
+                <th>صحبتة</th>
+                <!-- <th>🔢 عضوية الصحبة</th> -->
+                <th>الطرف الثاني</th>
+                <th>عضوية</th>
+                <th>صحبتة</th>
+                <!-- <th>🔢 عضوية الصحبة</th> -->
+                <th>الكنترول</th>
+                <th>المشرف</th>
+                <th>الإجراء</th>
+                <th>💾</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let f of fights; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td><input [(ngModel)]="f.date" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.day" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.time" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.location" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.firstPerson" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.firstPersonMembership" class="form-control form-control-sm text-center" />
+                </td>
+                <td><input [(ngModel)]="f.firstPersonGuests" class="form-control form-control-sm text-center" /></td>
+                <!-- <td><input [(ngModel)]="f.firstPersonCompanionMembership"
+                        class="form-control form-control-sm text-center" /></td> -->
+                <td><input [(ngModel)]="f.secondPerson" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.secondPersonMembership" class="form-control form-control-sm text-center" />
+                </td>
+                <td><input [(ngModel)]="f.secondPersonMembership" class="form-control form-control-sm text-center" />
+                </td>
+                <!-- <td><input [(ngModel)]="f.secondPersonCompanionMembership"
+                        class="form-control form-control-sm text-center" /></td> -->
+                <td><input [(ngModel)]="f.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="f.action" class="form-control form-control-sm text-center" /></td>
+                <td><button class="btn btn-sm btn-success" (click)="updateFight(f)">💾</button></td>
+                <td><button class="btn btn-sm btn-danger" (click)="deleteFight(f.id)">🗑️</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- إحصائيات المشاجرات -->
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card shadow-lg bg-dark text-light w-50 border-warning">
+            <div class="card-body">
+                <h4 class="text-center mb-4 fw-bold" style="color: #FFD700;">📊 إحصائيات مخالفات المحلات</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle custom-table table-striped table-dark"
+                        dir="rtl">
+                        <thead class="table-warning text-dark">
+                            <tr>
+                                <th>الوصف</th>
+                                <th>العدد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> إجمالي عدد المشاجرات</td>
+                                <td>{{ totalFights }}</td>
+                            </tr>
+                            <tr>
+                                <td> مشاجرات عنيفة تم فيها الصلح</td>
+                                <td>{{ totalViolentResolved }}</td>
+                            </tr>
+                            <tr>
+                                <td> مشاجرات بسيطة</td>
+                                <td>{{ totalSimple }}</td>
+                            </tr>
+                            <tr>
+                                <td> عدد المذكرات</td>
+                                <td>{{ totalMemos }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-center my-4">
+        <button class="btn btn-outline-light" (click)="exportToExcel()">📤 تصدير إلى Excel</button>
+    </div>
+</div>

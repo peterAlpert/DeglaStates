@@ -1,0 +1,58 @@
+<nav class="navbar navbar-expand-md px-4 shadow-sm" style="background-color: black;">
+    <div class="container-fluid text-warning">
+
+        <!-- الشعار + رسالة الترحيب -->
+        <a class="navbar-brand me-auto d-flex align-items-center gap-2" routerLink="/enterStadium">
+            <img src="assets/WDLogo.jfif" width="60" />
+
+            <!-- رسالة مرحبًا واسم الكنترول
+            <div *ngIf="controlName" class="d-flex flex-column text-white">
+                <small>مرحبًا</small>
+                <small>{{ controlName }}</small>
+            </div> -->
+        </a>
+
+        <!-- زر القائمة للموبايل -->
+        <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fa fa-bars fa-lg"></i>
+        </button>
+
+        <!-- عناصر القائمة -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                <!-- لو عامل لوج إن: أظهر كل اللينكات -->
+                <ng-container *ngIf="isLoggedIn; else loginLink">
+                    <li class="nav-item"><a class="nav-link" routerLink="/placeViolation">مخالفة محل</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/member-feedback">شكاوى ومقترحات الأعضاء</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/injury">الإصابات</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/addFight">المشاجرات</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/missing-child">أطفال مفقودة</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/general-violation">مخالفات الأعضاء</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/food-violation">مخالفات الأكل</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/employee-violation">مخالفة موظفين</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/add-hse">HSE</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/add-lostItem">المفقودات</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/add-oppWords">التلفظات</a></li>
+
+                    <!-- زر تسجيل الخروج -->
+                    <li class="nav-item">
+                        <button class="btn btn-outline-danger ms-3" (click)="logout()">🚪 تسجيل خروج</button>
+                    </li>
+                </ng-container>
+
+                <!-- لو مش عامل لوج إن: أظهر زر تسجيل دخول -->
+                <ng-template #loginLink>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-success" routerLink="/login">🔐 تسجيل دخول</a>
+                    </li>
+                </ng-template>
+
+            </ul>
+
+        </div>
+
+    </div>
+</nav>

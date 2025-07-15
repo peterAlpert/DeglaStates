@@ -1,0 +1,46 @@
+<div class="table-responsive mt-4">
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-warning" (click)="getComplaints()">🔁 تحديث البيانات</button>
+    </div>
+
+    <table class="table table-dark table-striped table-bordered text-center align-middle">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>م</th>
+                <th>اليوم</th>
+                <th>التوقيت</th>
+                <th>المكان</th>
+                <th>اسم العضو</th>
+                <th>رقم العضوية</th>
+                <th>المشكلة</th>
+                <th>مراقب الكنترول</th>
+                <th>المشرف</th>
+                <th>الإجراء</th>
+                <th>ملاحظات</th>
+                <th>💾</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let c of complaints; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td><input [(ngModel)]="c.day" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.time" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.location" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.memberName" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.membershipNo" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.issue" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.action" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.notes" class="form-control form-control-sm text-center" /></td>
+                <td><button class="btn btn-sm btn-success" (click)="updateComplaint(c)">💾</button></td>
+                <td><button class="btn btn-sm btn-danger" (click)="deleteComplaint(c.id)">🗑️</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center my-4">
+        <button class="btn btn-outline-light" (click)="exportToExcel()">🧾 تصدير إلى Excel</button>
+    </div>
+</div>

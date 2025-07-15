@@ -1,0 +1,105 @@
+<div class="table-responsive mt-4">
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-warning" (click)="getInjuries()">🔁 تحديث البيانات</button>
+    </div>
+
+    <table class="table table-bordered table-hover text-center align-middle custom-table mb-5">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>اليوم</th>
+                <th>التوقيت</th>
+                <th>المكان</th>
+                <th>اسم العضو</th>
+                <th>رقم العضوية</th>
+                <th>نوع الإصابة</th>
+                <th>سبب الإصابة</th>
+                <th>الإجراء</th>
+                <th>السلامة</th>
+                <th>الطبيب</th>
+                <th>الكنترول</th>
+                <th>المشرف</th>
+                <th>ملاحظات</th>
+                <th>تعديل</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of injuries; let idx = index">
+                <td>{{ idx + 1 }}</td>
+                <td><input [(ngModel)]="i.date" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.day" class="form-control form-control-sm text-center" readonly /></td>
+                <td><input [(ngModel)]="i.time" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.location" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.memberName" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.membershipNo" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.injuryType" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.cause" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.action" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.safetyOfficer" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.medic" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="i.notes" class="form-control form-control-sm text-center" /></td>
+                <td><button class="btn btn-sm btn-success" (click)="updateInjury(i)">💾</button></td>
+                <button class="btn btn-sm btn-danger" (click)="i.id && deleteInjury(i.id)">🗑️</button>
+
+            </tr>
+        </tbody>
+    </table>
+
+
+    <!-- جدول الإحصائيات -->
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card shadow-lg bg-dark text-light w-50 border-warning">
+            <div class="card-body">
+                <h4 class="text-center mb-4 fw-bold" style="color: #FFD700;">📊 إحصائيات مخالفات المحلات</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle custom-table table-striped table-dark"
+                        dir="rtl">
+                        <thead class="table-warning text-dark">
+                            <tr>
+                                <th>النوع</th>
+                                <th>العدد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>إجمالي الذهاب إلى العيادة (إصابات خفيفة)</td>
+                                <td>{{ statistics.toClinic }}</td>
+                            </tr>
+                            <tr>
+                                <td>إجمالي الذهاب إلى العيادة والتوجيه للمستشفى (إصابات حرجة)</td>
+                                <td>{{ statistics.toHospital }}</td>
+                            </tr>
+                            <tr>
+                                <td>إجمالي احضار المسعف فقط (إصابات خفيفة)</td>
+                                <td>{{ statistics.medicOnly }}</td>
+                            </tr>
+                            <tr>
+                                <td>إجمالي رفض احضار المسعف وتم الاطمئنان عليه</td>
+                                <td>{{ statistics.refused }}</td>
+                            </tr>
+                            <tr>
+                                <td>إجمالي احضار المسعف ثم الذهاب للعيادة (إصابات حرجة)</td>
+                                <td>{{ statistics.medicThenClinic }}</td>
+                            </tr>
+                            <tr class="fw-bold text-warning">
+                                <td>الإجمالي العام</td>
+                                <td>{{ statistics.total }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-center my-4">
+        <button class="btn btn-outline-light" (click)="exportToExcel()">📥 تصدير Excel</button>
+    </div>
+
+</div>

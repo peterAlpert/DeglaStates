@@ -1,0 +1,59 @@
+<div class="card">
+    <div class="card-body">
+
+        <!-- العنوان -->
+        <h3 class="text-center mb-4" style="color: #FFD700;">📋 سجل الألفاظ الخارجة</h3>
+
+        <!-- زر التحديث -->
+        <div class="text-end mb-3">
+            <button class="btn btn-outline-warning" (click)="getRecords()">
+                🔄 تحديث
+            </button>
+        </div>
+
+        <!-- الجدول -->
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered text-center align-middle">
+                <thead class="table-warning text-dark">
+                    <tr>
+                        <th>م</th>
+                        <th>اسم العضو</th>
+                        <th>رقم العضوية</th>
+                        <th>السن</th>
+                        <th>المكان</th>
+                        <th>الكنترول</th>
+                        <th>الإجراء</th>
+                        <th>ملاحظات</th>
+                        <th>💾</th>
+                        <th>🗑️</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let r of records; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td><input [(ngModel)]="r.memberName" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><input [(ngModel)]="r.membershipNo" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><input [(ngModel)]="r.age" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="r.location" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="r.control" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="r.action" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="r.notes" class="form-control form-control-sm text-center" /></td>
+                        <td>
+                            <button class="btn btn-sm btn-success" (click)="updateRecord(r)">💾</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" (click)="deleteRecord(r.id)">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- تصدير -->
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-light" (click)="exportToExcel()">📤 تصدير إلى Excel</button>
+        </div>
+    </div>
+</div>

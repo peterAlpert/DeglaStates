@@ -1,0 +1,155 @@
+
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
+import { MissingChildService } from '../../../Services/missing-child.service';
+
+@Component({
+  selector: 'app-show-missing-child',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './show-missing-child.component.html',
+  styleUrl: './show-missing-child.component.css'
+})
+export class ShowMissingChildComponent implements OnInit {
+
+  children: any[] = [];
+
+  totalChildren = 0;
+  totalSigned = 0;
+  totalRejected = 0;
+
+
+
+
+  constructor(
+    private http: HttpClient,
+    private _MissingChildService: MissingChildService,
+    private toastr: ToastrService) { }
+
+  ngOnInit(): void {
+    this.getChildren();
+  }
+
+  getChildren() {
+    this._MissingChildService.getAllChildren().subscribe({
+      next: (data: any[]) => {
+        this.children = data;
+        this.calculateStats(); // <-- حساب الإحصائيات
+      },
+      error: () => this.toastr.error('❌ فشل تحميل البيانات')
+    });
+  }
+
+  calculateStats() {
+    this.totalChildren = this.children.length;
+
+    this.totalSigned = this.children.filter(c =>
+      c.action?.toLowerCase().includes('تم توقيع') ||
+      c.action?.toLowerCase().includes('تم امضاء')
+    ).length;
+
+    this.totalRejected = this.children.filter(c =>
+      c.action?.toLowerCase().includes('رفض توقيع') ||
+      c.action?.toLowerCase().includes('رفض امضاء')
+    ).length;
+  }
+
+  updateChild(c: any) {
+    this._MissingChildService.updateChild(c.id, c).subscribe({
+      next: () => this.toastr.success('✅ تم حفظ التعديل'),
+      error: () => this.toastr.error('❌ فشل التعديل')
+    });
+  }
+
+
+  deleteChild(id: number) {
+    this._MissingChildService.deleteChild(id).subscribe({
+      next: () => {
+        this.toastr.success('🗑️ تم الحذف');
+        this.getChildren();
+      },
+      error: () => this.toastr.error('❌ فشل الحذف')
+    });
+  }
+
+  exportToExcel(): void {
+    // إعداد جدول البيانات
+    const exportData = this.children.map((c, i) => ({
+      'م': i + 1,
+      'التاريخ': c.date,
+      'اليوم': c.day,
+      'اسم الطفل': c.childName,
+      'المكان': c.location,
+      'اسم ولي الأمر': c.parentName,
+      'رقم العضوية': c.membershipNo,
+      'الكنترول': c.control,
+      'المشرف': c.supervisor,
+      'الإجراء': c.action,
+      'ملاحظات': c.notes
+    }));
+
+    // تجهيز إحصائيات
+    const total = this.children.length;
+    const totalSigned = this.children.filter(c =>
+      c.action?.toLowerCase().includes('رفض توقيع') ||
+      c.action?.toLowerCase().includes('تم امضاء')
+    ).length;
+
+    const totalRejected = this.children.filter(c =>
+      c.action?.toLowerCase().includes('رفض توقيع') ||
+      c.action?.toLowerCase().includes('رفض امضاء')
+    ).length;
+
+    // إعداد شيت البيانات
+    const worksheet = XLSX.utils.json_to_sheet(exportData, { skipHeader: false });
+
+    // إحصائيات مشفوته لليمين
+    const stats = [
+      ['إحصائيات الأطفال المفقودة'],
+      ['الوصف', 'العدد'],
+      ['اجمالي الأطفال المفقودة', total],
+      ['تم توقيع اقرار', totalSigned],
+      ['رفض توقيع اقرار', totalRejected],
+    ];
+
+    const shiftedStats = stats.map(row => [null, null, null, null, ...row]); // مشفوته 4 أعمدة
+
+    // نضيف الإحصائيات بعد جدول البيانات مع صفين فاصلين
+    const startRow = exportData.length + 3;
+    XLSX.utils.sheet_add_aoa(worksheet, shiftedStats, { origin: { r: startRow, c: 0 } });
+
+    // توسيع الأعمدة
+    worksheet['!cols'] = [
+      { wch: 5 },   // م
+      { wch: 10 },  // التاريخ
+      { wch: 8 },  // اليوم
+      { wch: 10 },  // اسم الطفل
+      { wch: 20 },  // المكان
+      { wch: 15 },  // اسم ولي الأمر
+      { wch: 8 },  // رقم العضوية
+      { wch: 10 },  // الكنترول
+      { wch: 10 },  // المشرف
+      { wch: 15 },  // الإجراء
+      { wch: 15 },  // ملاحظات
+      { wch: 5 },   // فاصل
+      { wch: 40 },  // عمود الإحصاء
+      { wch: 10 }   // العدد
+    ];
+
+    // تجهيز وتحميل الملف
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'أطفال مفقودة': worksheet },
+      SheetNames: ['أطفال مفقودة']
+    };
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    FileSaver.saveAs(blob, 'أطفال_مفقودة.xlsx');
+  }
+
+}

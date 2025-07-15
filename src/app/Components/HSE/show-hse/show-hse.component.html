@@ -1,0 +1,47 @@
+<div class="table-responsive mt-4">
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-warning" (click)="getHSEData()">🔁 تحديث البيانات</button>
+    </div>
+
+    <table class="table table-dark table-bordered text-center align-middle">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>تاريخ</th>
+                <th>اليوم</th>
+                <th>التوقيت</th>
+                <th>القطاع</th>
+                <th>متابعة السلامة</th>
+                <th>الكنترول</th>
+                <th>المشرف</th>
+                <th>موظف السلامة</th>
+                <th>الإجراء</th>
+                <th>ملاحظات</th>
+                <th>💾</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let h of hseList">
+                <td><input [(ngModel)]="h.date" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.day" class="form-control form-control-sm text-center" readonly /></td>
+                <td><input [(ngModel)]="h.time" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.sector" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.description" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.safetyEmployee" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.action" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="h.notes" class="form-control form-control-sm text-center" /></td>
+                <td>
+                    <button class="btn btn-sm btn-success me-1" (click)="updateHSE(h)">💾</button>
+                </td>
+                <td><button class="btn btn-sm btn-danger" (click)="deleteHSE(h.id)">🗑️</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center my-4">
+        <button class="btn btn-outline-light" (click)="exportToExcel()">🧾 تصدير إلى Excel</button>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+<div class="card ">
+    <div class="card-body">
+        <h3 class="text-center text-warning mb-4">📋 عرض مخالفات الأكل</h3>
+
+
+        <div class="col-md-12 my-3 text-end">
+            <button class="btn btn-outline-warning" (click)="getViolations()">🔄 تحديث</button>
+        </div>
+
+        <!-- جدول -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle custom-table mb-5">
+                <thead class="table-warning text-dark">
+                    <tr>
+                        <th>م</th>
+                        <th>التاريخ</th>
+                        <th>اليوم</th>
+                        <th>الوقت</th>
+                        <th>نوع المخالفه</th>
+                        <th>المكان</th>
+                        <th>اسم العضو</th>
+                        <th>عضويته</th>
+                        <th>صحبته</th>
+                        <th>عضويه</th>
+                        <th>الكنترول</th>
+                        <th>المشرف</th>
+                        <th>الإجراء</th>
+                        <th>المخالفة</th>
+                        <th>💾</th>
+                        <th>🗑️</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let v of allViolations; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td><input [(ngModel)]="v.date" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.day" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.time" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.violationCategory" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><input [(ngModel)]="v.location" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.memberName" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><input [(ngModel)]="v.membershipNo" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><input [(ngModel)]="v.guests" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.guestsMembershipNo"
+                                class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.control" class="form-control form-control-sm text-center" />
+                        <td><input [(ngModel)]="v.supervisor" class="form-control form-control-sm text-center" />
+                        <td><input [(ngModel)]="v.action" class="form-control form-control-sm text-center" /></td>
+                        <td><input [(ngModel)]="v.violation" class="form-control form-control-sm text-center" />
+                        </td>
+                        <td><button class="btn btn-sm btn-success" (click)="saveEdit(v)">💾</button></td>
+                        <td><button class="btn btn-sm btn-danger" (click)="deleteViolation(v.id)">🗑️</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- إحصائيات -->
+        <div class="d-flex justify-content-center mt-5">
+            <div class="card shadow-lg bg-dark text-light w-50 border-warning">
+                <div class="card-body">
+                    <h4 class="text-center mb-4 fw-bold" style="color: #FFD700;">📊 إحصائيات مخالفات المحلات</h4>
+
+                    <div class="table-responsive">
+                        <table
+                            class="table table-bordered text-center align-middle custom-table table-striped table-dark"
+                            dir="rtl">
+                            <thead class="table-warning text-dark">
+                                <tr>
+                                    <th>الوصف</th>
+                                    <th>العدد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>اجمالي مخالفات الاكل بدون بيانات وتمت الاستجابه</td>
+                                    <td>{{totalNoDataWithAction}}</td>
+                                </tr>
+                                <tr>
+                                    <td>اجمالي مخالفات الاكل بالبيانات</td>
+                                    <td>{{ totalWithData }}</td>
+                                </tr>
+                                <tr>
+                                    <td>اجمالي المذكرات خلال الشهر</td>
+                                    <td>{{ totalThisMonth }}</td>
+                                </tr>
+                                <tr>
+                                    <td>الاجمالي العام</td>
+                                    <td>{{ totalAll }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- تصدير -->
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-light" (click)="exportToExcel()">📤 تصدير إلى Excel</button>
+        </div>
+    </div>
+</div>

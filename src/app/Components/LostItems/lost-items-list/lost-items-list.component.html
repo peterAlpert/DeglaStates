@@ -1,0 +1,58 @@
+<div class="container py-4">
+    <div class="card bg-dark text-light shadow border-warning">
+        <div class="card-body">
+            <h3 class="text-center text-warning mb-4">📋 عرض المفقودات</h3>
+
+            <!-- أزرار -->
+            <div class="text-end mb-3">
+                <button class="btn btn-outline-warning" (click)="getItems()">🔄 تحديث</button>
+            </div>
+
+            <!-- جدول -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark table-striped text-center align-middle">
+                    <thead class="table-warning text-dark">
+                        <tr>
+                            <th>م</th>
+                            <th>التاريخ</th>
+                            <th>اليوم</th>
+                            <th>الوقت</th>
+                            <th>اسم المفقود</th>
+                            <th>المكان</th>
+                            <th>الكنترول</th>
+                            <th>مسؤول الأمن</th>
+                            <th>رقم البند</th>
+                            <th>💾</th>
+                            <th>🗑️</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of lostItems; let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td><input [(ngModel)]="item.date" class="form-control form-control-sm text-center" /></td>
+                            <td><input [(ngModel)]="item.day" class="form-control form-control-sm text-center" /></td>
+                            <td><input [(ngModel)]="item.time" class="form-control form-control-sm text-center" /></td>
+                            <td><input [(ngModel)]="item.itemName" class="form-control form-control-sm text-center" />
+                            </td>
+                            <td><input [(ngModel)]="item.location" class="form-control form-control-sm text-center" />
+                            </td>
+                            <td><input [(ngModel)]="item.control" class="form-control form-control-sm text-center" />
+                            </td>
+                            <td><input [(ngModel)]="item.securityOfficer"
+                                    class="form-control form-control-sm text-center" /></td>
+                            <td><input [(ngModel)]="item.itemNumber" class="form-control form-control-sm text-center" />
+                            </td>
+                            <td><button class="btn btn-sm btn-success" (click)="saveEdit(item)">💾</button></td>
+                            <td><button class="btn btn-sm btn-danger" (click)="deleteItem(item.id)">🗑️</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- تصدير -->
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-light" (click)="exportToExcel()">📤 تصدير إلى Excel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="table-responsive mt-4 text-light">
+    <div class="text-end mb-3">
+        <button class="btn btn-outline-warning" (click)="getChildren()">🔁 تحديث البيانات</button>
+    </div>
+
+    <table class="table table-bordered table-hover text-center align-middle custom-table mb-5">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>م</th>
+                <th>التاريخ</th>
+                <th>اليوم</th>
+                <th>اسم الطفل</th>
+                <th>المكان</th>
+                <th>اسم ولي الأمر</th>
+                <th>رقم العضوية</th>
+                <th>الكنترول</th>
+                <th>المشرف</th>
+                <th>الإجراء</th>
+                <th>ملاحظات</th>
+                <th>💾</th>
+                <th>🗑️</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let c of children; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td><input [(ngModel)]="c.date" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.day" class="form-control form-control-sm text-center" readonly /></td>
+                <td><input [(ngModel)]="c.childName" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.location" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.parentName" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.membershipNo" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.control" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.supervisor" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.action" class="form-control form-control-sm text-center" /></td>
+                <td><input [(ngModel)]="c.notes" class="form-control form-control-sm text-center" /></td>
+                <td><button class="btn btn-sm btn-success" (click)="updateChild(c)">💾</button></td>
+                <td><button class="btn btn-sm btn-danger" (click)="deleteChild(c.id)">🗑️</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- إحصائيات -->
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card shadow-lg bg-dark text-light w-25 border-warning">
+            <div class="card-body">
+                <h4 class="text-center mb-4 fw-bold" style="color: #FFD700;">📊 إحصائيات مخالفات المحلات</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle custom-table table-striped table-dark"
+                        dir="rtl">
+                        <thead class="table-warning text-dark">
+                            <tr>
+                                <th>الوصف</th>
+                                <th>العدد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>👶 اجمالي الأطفال المفقودة</td>
+                                <td>{{ totalChildren }}</td>
+                            </tr>
+                            <tr>
+                                <td>✍️ تم توقيع اقرار</td>
+                                <td>{{ totalSigned }}</td>
+                            </tr>
+                            <tr>
+                                <td>🚫 رفض توقيع اقرار</td>
+                                <td>{{ totalRejected }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-center my-5">
+        <button class="btn btn-outline-light" (click)="exportToExcel()">📥 تصدير إلى Excel</button>
+    </div>
+</div>

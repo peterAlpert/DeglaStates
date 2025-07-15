@@ -1,1 +1,163 @@
 /* You can add global styles to this file, and also import other style files */
+.custom-table {
+    background-color: #121212;
+    color: #f8f9fa;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.custom-table input {
+    background-color: #212529;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+.custom-table th {
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.custom-table td,
+.custom-table th {
+    vertical-align: middle !important;
+}
+
+.btn {
+    transition: 0.3s ease;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s;
+}
+
+.card {
+    border-radius: 1rem;
+}
+
+.table thead th {
+    vertical-align: middle;
+}
+
+.table td,
+.table th {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #2b2b2b;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #1e1e1e;
+}
+
+.table tfoot td {
+    font-size: 1rem;
+}
+
+
+
+input {
+    font-size: 1.1rem;
+}
+
+button {
+    font-size: 1.1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+
+.form-control {
+    color: #fdfdfd !important;
+    background-color: #1e1e1e !important;
+    border-color: #555 !important;
+}
+
+.form-control::placeholder {
+    color: #bbbbbb !important;
+}
+
+input::placeholder {
+    color: #bbb;
+    opacity: 0.6;
+    font-style: italic;
+}
+
+input:focus {
+    border: 2px solid #39372dff !important;
+    box-shadow: 0 0 5px 2px #ffc107;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    color: #ffc107;
+}
+
+
+.form-control:focus {
+    border-color: #FFD700 !important;
+    box-shadow: 0 0 10px #FFD70088 !important;
+    outline: none;
+}
+
+/* نبضة عند تحديث تلقائي */
+.glow-update {
+    animation: glowEffect 1.5s ease-out;
+}
+
+@keyframes glowEffect {
+    0% {
+        box-shadow: 0 0 10px #FFD700aa;
+        background-color: #333300;
+    }
+
+    100% {
+        box-shadow: none;
+        background-color: #1e1e1e;
+    }
+}
+
+/* نبضة للمايك */
+.pulse {
+    animation: pulse-animation 1s infinite;
+}
+
+@keyframes pulse-animation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+.form-label {
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+@media (max-width: 576px) {
+    input.form-control {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+}

@@ -1,0 +1,84 @@
+<div class="container py-4">
+    <div class="card shadow bg-dark text-light border-warning">
+        <div class="card-body">
+            <div class="text-center my-4">
+                <h3 class="mt-2 text-warning">📦 تسجيل مفقودات</h3>
+            </div>
+
+            <div class="text-end my-3" dir="rtl">
+                <button class="btn btn-outline-info" routerLink="/show-lostItems">عرض السجل</button>
+            </div>
+
+            <form (ngSubmit)="submitForm()" dir="rtl">
+                <!-- التاريخ واليوم -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">تاريخ</label>
+                        <input type="date" [(ngModel)]="formData.date" name="date"
+                            class="form-control bg-dark text-light border-warning" (change)="onDateChange()" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">اليوم</label>
+                        <input type="text" [(ngModel)]="formData.day" name="day"
+                            class="form-control bg-dark text-light border-secondary" readonly />
+                    </div>
+                </div>
+
+                <!-- باقي الحقول -->
+                <div class="row g-3 my-2" *ngFor="let field of fields; let i = index">
+                    <div class="col-md-8" *ngIf="field.key !== 'date' && field.key !== 'day'">
+                        <div class="input-group gap-2">
+                            <input [(ngModel)]="formData[field.key]" name="{{ field.key }}"
+                                [type]="field.type || 'text'" class="form-control bg-dark text-light border-light"
+                                placeholder="{{field.label}}" #fieldInput />
+
+                            <!-- زر المايك -->
+                            <button type="button" class="btn btn-sm rounded-circle"
+                                [ngClass]="{ 'btn-outline-warning': !(isRecognizing && activeField === field.key), 'btn-warning pulse': isRecognizing && activeField === field.key }"
+                                (mousedown)="startRecognition(field.key)" (mouseup)="stopRecognition()"
+                                (mouseleave)="stopRecognition()" title="اضغط للتسجيل">
+                                {{ isRecognizing && activeField === field.key ? '🎙️' : '🎤' }}
+                            </button>
+
+                            <!-- زر المسح -->
+                            <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearField(field.key)"
+                                title="مسح">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 fixed-bottom mb-3">
+                    <button type="submit" class="btn btn-lg fw-bold px-5" [disabled]="!isFormValid() || isSubmitting"
+                        style="background-color: #FFD700; color: black;">
+                        {{ isSubmitting ? '⏳ جاري الإدخال...' : '✅ إدخال' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Animation Style -->
+<style>
+    .pulse {
+        animation: pulse-animation 1s infinite;
+    }
+
+    @keyframes pulse-animation {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+        }
+    }
+</style>
