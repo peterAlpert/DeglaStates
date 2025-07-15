@@ -6,5 +6,5 @@
 
 export const environment = {
     production: false,
-    baseUrl: 'https://wadideglastates.runasp.net'
+    baseUrl: 'https://wadideglastates.runasp.net/api'
 };
