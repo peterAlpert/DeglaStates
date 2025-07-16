@@ -112,9 +112,11 @@ export class AddHSEComponent {
       next: () => {
         this.toastr.success('✅ تم حفظ البيانات');
         this.formData = {};
+        this.isSubmitting = false;
       },
       error: () => {
         this.toastr.error('❌ حدث خطأ أثناء الحفظ');
+        this.isSubmitting = false;
       }
     });
   }

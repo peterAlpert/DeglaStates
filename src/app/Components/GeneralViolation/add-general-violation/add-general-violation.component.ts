@@ -125,9 +125,11 @@ export class GeneralViolationFormComponent {
       next: () => {
         this.toastr.success('✅ تم تسجيل المخالفة');
         this.formData = {};
+        this.isSubmitting = false;
       },
       error: () => {
         this.toastr.error('❌ حدث خطأ أثناء الحفظ');
+        this.isSubmitting = false;
       }
     });
   }

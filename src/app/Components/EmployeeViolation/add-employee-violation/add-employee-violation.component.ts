@@ -115,9 +115,11 @@ export class AddEmployeeViolationComponent {
       next: () => {
         this.toastr.success('✅ تم حفظ مخالفة الموظف');
         this.formData = {};
+        this.isSubmitting = false;
       },
       error: () => {
         this.toastr.error('❌ حدث خطأ أثناء الحفظ');
+        this.isSubmitting = false;
       }
     });
   }

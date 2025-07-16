@@ -121,8 +121,12 @@ export class InjuryComponent {
       next: () => {
         this._Toastr.success('✅ تم حفظ الإصابة بنجاح');
         this.formData = {};
+        this.isSubmitting = false;
       },
-      error: () => this._Toastr.error('❌ فشل في حفظ الإصابة')
+      error: () => {
+        this._Toastr.error('❌ فشل في حفظ الإصابة');
+        this.isSubmitting = false;
+      }
     });
   }
 

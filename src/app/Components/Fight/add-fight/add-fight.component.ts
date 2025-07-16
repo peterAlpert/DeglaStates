@@ -154,8 +154,12 @@ export class AddFightComponent {
       next: () => {
         this.toastr.success('✅ تم تسجيل المشاجرة بنجاح');
         this.formData = {};
+        this.isSubmitting = false;
       },
-      error: () => this.toastr.error('❌ حدث خطأ أثناء التسجيل'),
+      error: () => {
+        this.toastr.error('❌ حدث خطأ أثناء التسجيل');
+        this.isSubmitting = false;
+      },
     });
   }
 }
