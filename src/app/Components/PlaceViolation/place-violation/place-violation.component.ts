@@ -180,10 +180,12 @@ export class PlaceViolationComponent {
         console.log('تم الإرسال بنجاح', res);
         this._ToastrService.success('✅ تم حفظ المخالفة');
         this.formData = {}; // تفرغ الفورم
+        this.isSubmitting = false;
       },
       error: err => {
         console.error('فشل في الإرسال', err);
         this._ToastrService.error('❌ حدث خطأ أثناء الإرسال');
+        this.isSubmitting = false;
       }
     });
   }
