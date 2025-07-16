@@ -11,5 +11,5 @@ import { HeaderComponent } from './Layout/header/header.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'DeglaFront';
+  title = 'Wadi Degla States';
 }
