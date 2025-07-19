@@ -195,6 +195,9 @@ export class ShowPlaceVioComponent implements OnInit {
     ];
 
 
+    // ✅ اضبط اتجاه الشيت من اليمين لليسار
+    wsData['!rtl'] = true;
+
     const workbook: XLSX.WorkBook = {
       Sheets: { 'سجل المخالفات': wsData },
       SheetNames: ['سجل المخالفات']
