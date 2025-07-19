@@ -26,17 +26,6 @@
                     </div>
                 </div>
 
-                <!-- حقل الوقت -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">الوقت</label>
-                        <input [(ngModel)]="formData.time" name="time"
-                            class="form-control bg-dark text-light border-warning" [ngxTimepicker]="picker" readonly />
-                        <ngx-material-timepicker #picker></ngx-material-timepicker>
-                    </div>
-                </div>
-
-
                 <!-- باقي الحقول -->
                 <div class="row g-3" *ngFor="let field of fields">
                     <div class="col-md-8" *ngIf="field.key !== 'date' && field.key !== 'day' && field.key !== 'store'">

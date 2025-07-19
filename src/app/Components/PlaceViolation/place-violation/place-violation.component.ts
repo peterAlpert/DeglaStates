@@ -6,15 +6,11 @@ import { HostListener } from '@angular/core';
 import { ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { RouterLink } from '@angular/router';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
-
-
-
 
 @Component({
   selector: 'app-place-violation',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink, NgxMaterialTimepickerModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './place-violation.component.html',
   styleUrl: './place-violation.component.css'
 })

@@ -172,8 +172,3 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="time"]::-webkit-calendar-picker-indicator {
     filter: brightness(0) saturate(100%) invert(83%) sepia(100%) saturate(532%) hue-rotate(1deg) brightness(103%) contrast(101%);
 }
-
-::ng-deep .ngx-material-timepicker-container {
-    background-color: #333;
-    color: #FFD700 !important;
-}
