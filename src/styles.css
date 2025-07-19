@@ -48,7 +48,7 @@
 .table td,
 .table th {
     font-size: 0.95rem;
-    padding: 0.75rem;
+    padding: 0.25rem;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
