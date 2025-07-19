@@ -54,9 +54,9 @@
                     <!-- 🟡 حقل اسم المحل Dropdown -->
                     <div class="col-md-8" *ngIf="field.key === 'store'">
                         <div class="input-group gap-3 my-1">
+                            <label class="form-label fw-bold">المحل</label>
                             <select [(ngModel)]="formData.store" name="store"
                                 class="form-select bg-dark text-light border-light">
-                                <option disabled selected value="">اختر اسم المحل</option>
                                 <option *ngFor="let s of storeOptions" [value]="s">{{ s }}</option>
                             </select>
 
