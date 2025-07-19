@@ -161,3 +161,14 @@ input:focus {
         padding: 0.5rem 0.75rem;
     }
 }
+
+
+/* 🟡 تغيير لون أيقونة التاريخ */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0) saturate(100%) invert(83%) sepia(100%) saturate(532%) hue-rotate(1deg) brightness(103%) contrast(101%);
+}
+
+/* 🟡 تغيير لون أيقونة الساعة (لو فيه time input) */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0) saturate(100%) invert(83%) sepia(100%) saturate(532%) hue-rotate(1deg) brightness(103%) contrast(101%);
+}
