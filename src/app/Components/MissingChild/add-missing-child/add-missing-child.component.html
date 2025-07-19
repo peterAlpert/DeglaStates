@@ -36,9 +36,19 @@
                 <div class="row g-3" *ngFor="let field of fields">
                     <div class="col-md-8" *ngIf="field.key !== 'date' && field.key !== 'day'">
                         <div class="input-group gap-3 my-1">
-                            <input [(ngModel)]="formData[field.key]" name="{{ field.key }}"
-                                [type]="field.type || 'text'" class="form-control bg-dark text-light border-light"
-                                placeholder="{{field.label}}" #fieldInput />
+                            <ng-container *ngIf="field.key === 'action'; else normalInput">
+                                <select [(ngModel)]="formData.action" name="action"
+                                    class="form-select bg-dark text-light border-warning">
+                                    <option *ngFor="let option of actionOptions" [value]="option">{{ option }}</option>
+                                </select>
+                            </ng-container>
+
+                            <ng-template #normalInput>
+                                <input [(ngModel)]="formData[field.key]" name="{{ field.key }}"
+                                    [type]="field.type || 'text'" class="form-control bg-dark text-light border-light"
+                                    placeholder="{{field.label}}" #fieldInput />
+                            </ng-template>
+
 
                             <!-- زر المايك -->
                             <button type="button" class="btn rounded-circle ms-1" [ngClass]="{

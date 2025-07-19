@@ -28,6 +28,11 @@ export class MissingChildComponent {
     { key: 'notes', label: 'ملاحظات' },
   ];
 
+  actionOptions: string[] = [
+    'تم التسليم الي ولي الامر و تم توقيع اقرار',
+    'تم التسليم الي ولي الامر و رفض توقيع اقرار'
+  ];
+
 
   recognition: any;
   isRecognizing = false;
