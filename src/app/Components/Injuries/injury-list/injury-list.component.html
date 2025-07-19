@@ -43,7 +43,7 @@
                 <td><input [(ngModel)]="i.supervisor" class="form-control form-control-sm text-center" /></td>
                 <td><input [(ngModel)]="i.notes" class="form-control form-control-sm text-center" /></td>
                 <td><button class="btn btn-sm btn-success" (click)="updateInjury(i)">💾</button></td>
-                <button class="btn btn-sm btn-danger" (click)="i.id && deleteInjury(i.id)">🗑️</button>
+                <td><button class="btn btn-sm btn-danger" (click)="i.id && deleteInjury(i.id)">🗑️</button></td>
 
             </tr>
         </tbody>
