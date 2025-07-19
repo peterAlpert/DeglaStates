@@ -36,6 +36,7 @@
                 <div class="row g-3" *ngFor="let field of fields">
                     <div class="col-md-8" *ngIf="field.key !== 'date' && field.key !== 'day'">
                         <div class="input-group gap-3 my-1">
+                            <label *ngIf="field.key === 'action'" class="form-label fw-bold">الإجراء</label>
                             <ng-container *ngIf="field.key === 'action'; else normalInput">
                                 <select [(ngModel)]="formData.action" name="action"
                                     class="form-select bg-dark text-light border-warning">

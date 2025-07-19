@@ -24,8 +24,8 @@ export class MissingChildComponent {
     { key: 'MembershipNo', label: 'رقم العضويه' },
     { key: 'control', label: 'الكنترول' },
     { key: 'supervisor', label: 'المشرف' },
-    { key: 'action', label: 'الاجراء' },
     { key: 'notes', label: 'ملاحظات' },
+    { key: 'action', label: 'الاجراء' }
   ];
 
   actionOptions: string[] = [
