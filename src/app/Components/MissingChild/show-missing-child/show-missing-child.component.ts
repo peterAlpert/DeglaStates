@@ -49,13 +49,11 @@ export class ShowMissingChildComponent implements OnInit {
     this.totalChildren = this.children.length;
 
     this.totalSigned = this.children.filter(c =>
-      c.action?.toLowerCase().includes('تم توقيع') ||
-      c.action?.toLowerCase().includes('تم امضاء')
+      c.action?.toLowerCase().includes('تم التسليم الي ولي الامر و تم توقيع اقرار')
     ).length;
 
     this.totalRejected = this.children.filter(c =>
-      c.action?.toLowerCase().includes('رفض توقيع') ||
-      c.action?.toLowerCase().includes('رفض امضاء')
+      c.action?.toLowerCase().includes('تم التسليم الي ولي الامر و رفض توقيع اقرار')
     ).length;
   }
 
@@ -112,13 +110,11 @@ export class ShowMissingChildComponent implements OnInit {
     // تجهيز إحصائيات
     const total = this.children.length;
     const totalSigned = this.children.filter(c =>
-      c.action?.toLowerCase().includes('رفض توقيع') ||
-      c.action?.toLowerCase().includes('تم امضاء')
+      c.action?.toLowerCase().includes('تم التسليم الي ولي الامر و تم توقيع اقرار')
     ).length;
 
     const totalRejected = this.children.filter(c =>
-      c.action?.toLowerCase().includes('رفض توقيع') ||
-      c.action?.toLowerCase().includes('رفض امضاء')
+      c.action?.toLowerCase().includes('تم التسليم الي ولي الامر و رفض توقيع اقرار')
     ).length;
 
     // إعداد شيت البيانات
