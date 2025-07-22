@@ -176,7 +176,18 @@ export class PlaceViolationComponent {
       next: res => {
         console.log('تم الإرسال بنجاح', res);
         this._ToastrService.success('✅ تم حفظ المخالفة');
-        this.formData = {}; // تفرغ الفورم
+
+        // بعد الحفظ
+        if (this.lockDateTime) {
+          this.formData = {
+            date: this.lastUsedDate,
+            time: this.lastUsedTime
+          };
+          this.onDateChange();
+        } else {
+          this.formData = {};
+        }
+
         this.isSubmitting = false;
       },
       error: err => {
@@ -199,6 +210,24 @@ export class PlaceViolationComponent {
       if (f.key === 'date' || f.key === 'day') return true;
       return this.formData[f.key] && this.formData[f.key].trim() !== '';
     });
+  }
+
+  lockDateTime: boolean = false;
+  lastUsedDate: string = '';
+  lastUsedTime: string = '';
+
+  toggleLockDateTime() {
+    this.lockDateTime = !this.lockDateTime;
+
+    if (this.lockDateTime) {
+      // قفلنا: احفظ القيم الحالية
+      this.lastUsedDate = this.formData.date;
+      this.lastUsedTime = this.formData.time;
+    } else {
+      // فتحنا: امسح القيم القديمة
+      this.lastUsedDate = '';
+      this.lastUsedTime = '';
+    }
   }
 
 }
