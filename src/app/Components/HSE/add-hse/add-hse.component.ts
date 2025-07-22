@@ -131,7 +131,7 @@ export class AddHSEComponent {
 
   playBeep(type: 'start' | 'end') {
     const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/start-beep.mp3';
+    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
     audio.play();
   }
 }
