@@ -17,9 +17,15 @@ import { RouterLink } from '@angular/router';
 export class PlaceViolationComponent {
 
   formData: any = {};
-  @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
+  lastUsedDate: string = '';
+  lastUsedTime: string = '';
   isSubmitting: boolean = false;
 
+  recognition: any;
+  isRecognizing: boolean = false;
+  activeField: string = '';
+
+  @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
     { key: 'time', label: 'التوقيت', type: 'time' },
@@ -38,11 +44,6 @@ export class PlaceViolationComponent {
     'نسله', 'بكره', 'كاندي'
   ];
 
-
-
-  recognition: any;
-  isRecognizing: boolean = false;
-  activeField: string = '';
 
   constructor(
     private _PlaceViolationService: PlaceViolationService,
@@ -148,13 +149,6 @@ export class PlaceViolationComponent {
   }
 
 
-  onDateChange() {
-    if (this.formData.date) {
-      const selectedDate = new Date(this.formData.date);
-      const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-      this.formData.day = days[selectedDate.getDay()];
-    }
-  }
 
 
 
@@ -172,31 +166,42 @@ export class PlaceViolationComponent {
 
   submitForm() {
     this.isSubmitting = true;
+
     this._PlaceViolationService.addViolation(this.formData).subscribe({
       next: res => {
-        console.log('تم الإرسال بنجاح', res);
+        console.log('✅ تم الإرسال بنجاح', res);
         this._ToastrService.success('✅ تم حفظ المخالفة');
 
-        // بعد الحفظ
-        if (this.lockDateTime) {
-          this.formData = {
-            date: this.lastUsedDate,
-            time: this.lastUsedTime
-          };
-          this.onDateChange();
-        } else {
-          this.formData = {};
-        }
+        // 🟡 حفظ التاريخ والوقت المستخدمين
+        this.lastUsedDate = this.formData.date;
+        this.lastUsedTime = this.formData.time;
+
+        // 🟢 تعبئة تلقائية بالتاريخ والوقت السابق
+        this.formData = {
+          date: this.lastUsedDate,
+          time: this.lastUsedTime
+        };
+        this.onDateChange();
 
         this.isSubmitting = false;
       },
       error: err => {
-        console.error('فشل في الإرسال', err);
+        console.error('❌ فشل في الإرسال', err);
         this._ToastrService.error('❌ حدث خطأ أثناء الإرسال');
         this.isSubmitting = false;
       }
     });
   }
+
+  onDateChange() {
+    if (this.formData.date) {
+      const selectedDate = new Date(this.formData.date);
+      const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      this.formData.day = days[selectedDate.getDay()];
+    }
+  }
+
+
 
 
   playBeep(type: 'start' | 'end') {
@@ -212,22 +217,6 @@ export class PlaceViolationComponent {
     });
   }
 
-  lockDateTime: boolean = false;
-  lastUsedDate: string = '';
-  lastUsedTime: string = '';
 
-  toggleLockDateTime() {
-    this.lockDateTime = !this.lockDateTime;
-
-    if (this.lockDateTime) {
-      // قفلنا: احفظ القيم الحالية
-      this.lastUsedDate = this.formData.date;
-      this.lastUsedTime = this.formData.time;
-    } else {
-      // فتحنا: امسح القيم القديمة
-      this.lastUsedDate = '';
-      this.lastUsedTime = '';
-    }
-  }
 
 }
