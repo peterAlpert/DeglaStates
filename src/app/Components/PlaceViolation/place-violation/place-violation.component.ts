@@ -44,7 +44,6 @@ export class PlaceViolationComponent {
     'نسله', 'بكره', 'كاندي'
   ];
 
-
   constructor(
     private _PlaceViolationService: PlaceViolationService,
     private _ToastrService: ToastrService
@@ -53,6 +52,15 @@ export class PlaceViolationComponent {
     this.recognition = new webkitSpeechRecognition() || new (window as any).SpeechRecognition();
     this.recognition.lang = 'ar-EG';
     this.recognition.interimResults = true;
+
+    this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
+    this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
+
+    if (this.lastUsedDate && this.lastUsedTime) {
+      this.formData.date = this.lastUsedDate;
+      this.formData.time = this.lastUsedTime;
+      this.onDateChange();
+    }
 
     this.recognition.onresult = (event: any) => {
       let interimTranscript = '';
@@ -79,7 +87,6 @@ export class PlaceViolationComponent {
 
     };
 
-
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
@@ -105,7 +112,6 @@ export class PlaceViolationComponent {
 
 
   }
-
 
   startRecognition(fieldKey: string) {
     if (!this.isRecognizing) {
@@ -139,8 +145,6 @@ export class PlaceViolationComponent {
     }
   }
 
-
-
   @HostListener('document:keyup', ['$event'])
   handleKeyUp(event: KeyboardEvent) {
     if (event.key === 'Control' && this.isRecognizing) {
@@ -148,17 +152,12 @@ export class PlaceViolationComponent {
     }
   }
 
-
-
-
-
   focusInput(key: string) {
     const el = document.getElementsByName(key)[0] as HTMLInputElement;
     if (el) {
       el.focus();
     }
   }
-
 
   clearField(fieldKey: string) {
     this.formData[fieldKey] = '';
@@ -176,12 +175,27 @@ export class PlaceViolationComponent {
         this.lastUsedDate = this.formData.date;
         this.lastUsedTime = this.formData.time;
 
+        localStorage.setItem('lastUsedDate', this.lastUsedDate);
+        localStorage.setItem('lastUsedTime', this.lastUsedTime);
+
         // 🟢 تعبئة تلقائية بالتاريخ والوقت السابق
+        const date = this.lastUsedDate;
+        const time = this.lastUsedTime;
+
         this.formData = {
-          date: this.lastUsedDate,
-          time: this.lastUsedTime
+          date,
+          time
         };
+
+        // فرغ باقي الحقول
+        this.fields.forEach(field => {
+          if (field.key !== 'date' && field.key !== 'time') {
+            this.formData[field.key] = '';
+          }
+        });
+
         this.onDateChange();
+
 
         this.isSubmitting = false;
       },
@@ -201,9 +215,6 @@ export class PlaceViolationComponent {
     }
   }
 
-
-
-
   playBeep(type: 'start' | 'end') {
     const audio = new Audio();
     audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/start-beep.mp3';
@@ -216,7 +227,4 @@ export class PlaceViolationComponent {
       return this.formData[f.key] && this.formData[f.key].trim() !== '';
     });
   }
-
-
-
 }
