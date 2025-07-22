@@ -15,6 +15,10 @@ import { HSEService } from '../../../Services/hse.service';
 export class AddHSEComponent {
   formData: any = {};
   isSubmitting = false;
+
+  lastUsedDate: string = '';
+  lastUsedTime: string = '';
+
   @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
@@ -37,6 +41,9 @@ export class AddHSEComponent {
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
     this.recognition.interimResults = true;
+
+    this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
+    this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
 
     this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
@@ -111,8 +118,9 @@ export class AddHSEComponent {
     this.service.addHSE(this.formData).subscribe({
       next: () => {
         this.toastr.success('✅ تم حفظ البيانات');
-        this.formData = {};
+
         this.isSubmitting = false;
+
       },
       error: () => {
         this.toastr.error('❌ حدث خطأ أثناء الحفظ');

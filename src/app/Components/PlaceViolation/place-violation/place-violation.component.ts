@@ -17,9 +17,10 @@ import { RouterLink } from '@angular/router';
 export class PlaceViolationComponent {
 
   formData: any = {};
+  isSubmitting: boolean = false;
+
   lastUsedDate: string = '';
   lastUsedTime: string = '';
-  isSubmitting: boolean = false;
 
   recognition: any;
   isRecognizing: boolean = false;
@@ -109,8 +110,6 @@ export class PlaceViolationComponent {
 
       this.activeField = '';
     };
-
-
   }
 
   startRecognition(fieldKey: string) {
@@ -195,8 +194,6 @@ export class PlaceViolationComponent {
         });
 
         this.onDateChange();
-
-
         this.isSubmitting = false;
       },
       error: err => {

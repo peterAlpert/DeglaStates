@@ -18,6 +18,9 @@ export class AddFoodVioComponent {
     violationCategory: 'أكل'
   };
   isSubmitting = false;
+
+  lastUsedDate: string = '';
+  lastUsedTime: string = '';
   @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
@@ -45,6 +48,10 @@ export class AddFoodVioComponent {
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
     this.recognition.interimResults = true;
+
+    this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
+    this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
+
 
     this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
@@ -124,7 +131,31 @@ export class AddFoodVioComponent {
     this.service.addViolation(this.formData).subscribe({
       next: () => {
         this.toastr.success('✅ تم تسجيل المخالفة');
-        this.formData = {};
+
+        // 🟡 حفظ التاريخ والوقت المستخدمين
+        this.lastUsedDate = this.formData.date;
+        this.lastUsedTime = this.formData.time;
+
+        localStorage.setItem('lastUsedDate', this.lastUsedDate);
+        localStorage.setItem('lastUsedTime', this.lastUsedTime);
+
+        // 🟢 تعبئة تلقائية بالتاريخ والوقت السابق
+        const date = this.lastUsedDate;
+        const time = this.lastUsedTime;
+
+        this.formData = {
+          date,
+          time
+        };
+
+        // فرغ باقي الحقول
+        this.fields.forEach(field => {
+          if (field.key !== 'date' && field.key !== 'time') {
+            this.formData[field.key] = '';
+          }
+        });
+
+        this.onDateChange();
         this.isSubmitting = false;
       },
       error: () => {

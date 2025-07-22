@@ -14,7 +14,10 @@ import { RouterLink } from '@angular/router';
 })
 export class MissingChildComponent {
   formData: any = {};
+  lastUsedDate: string = '';
+  lastUsedTime: string = '';
   isSubmitting = false
+
   @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
@@ -43,6 +46,10 @@ export class MissingChildComponent {
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
     this.recognition.interimResults = true;
+
+    this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
+    this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
+
 
     this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
@@ -111,11 +118,36 @@ export class MissingChildComponent {
 
   submitForm() {
     this.isSubmitting = true
+
     this.service.addChild(this.formData).subscribe({
       next: () => {
         this.toastr.success('✅ تم حفظ البيانات');
-        this.formData = {};
+        // 🟡 حفظ التاريخ والوقت المستخدمين
+        this.lastUsedDate = this.formData.date;
+        this.lastUsedTime = this.formData.time;
+
+        localStorage.setItem('lastUsedDate', this.lastUsedDate);
+        localStorage.setItem('lastUsedTime', this.lastUsedTime);
+
+        // 🟢 تعبئة تلقائية بالتاريخ والوقت السابق
+        const date = this.lastUsedDate;
+        const time = this.lastUsedTime;
+
+        this.formData = {
+          date,
+          time
+        };
+
+        // فرغ باقي الحقول
+        this.fields.forEach(field => {
+          if (field.key !== 'date' && field.key !== 'time') {
+            this.formData[field.key] = '';
+          }
+        });
+
+        this.onDateChange();
         this.isSubmitting = false;
+
       },
       error: () => {
         this.toastr.error('❌ حدث خطأ أثناء الحفظ');
