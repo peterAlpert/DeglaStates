@@ -84,6 +84,10 @@ export class PlaceViolationComponent {
         const matched = this.findClosestMatch(transcript, this.supervisorOptions);
         this.formData['supervisor'] = matched || transcript;
 
+      } else if (this.activeField === 'location') {
+        const matched = this.findClosestMatch(transcript, this.locationOptions);
+        this.formData['location'] = matched || transcript;
+
       } else {
         this.formData[this.activeField] = transcript;
       }
@@ -282,6 +286,12 @@ export class PlaceViolationComponent {
 
   supervisorOptions: string[] = [
     'شيرين اكرام', 'حسام حسن', 'روماني مجدي', 'احمد جلال'
+  ];
+
+  locationOptions: string[] = [
+    'المبني الاجتماعي', 'مبني الاسبورت', 'مبني الخدمات', 'الكويسكات', 'الجاردن', 'التراك', 'البحيره',
+    'جاردن 1', 'جاردن 2', 'جاردن 3', 'الفتنس', 'الملاعب', 'المرحله', 'ملعب 1', 'ملعب 2', 'ملعب 3', 'ملعب 4',
+    'رامب الاسبورت', 'رامب الاجتماعي',
   ];
 
   findClosestMatch(input: string, options: string[]): string | null {
