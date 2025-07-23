@@ -80,6 +80,10 @@ export class PlaceViolationComponent {
       if (this.activeField === 'control') {
         const matched = this.findClosestMatch(transcript, this.controlOptions);
         this.formData['control'] = matched || transcript;
+      } else if (this.activeField === 'supervisor') {
+        const matched = this.findClosestMatch(transcript, this.supervisorOptions);
+        this.formData['supervisor'] = matched || transcript;
+
       } else {
         this.formData[this.activeField] = transcript;
       }
@@ -130,10 +134,10 @@ export class PlaceViolationComponent {
       }
 
 
-      this.activeField = '';
-
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextField = this.fields[currentIndex + 1];
+
+      this.activeField = '';
 
       if (nextField) {
         setTimeout(() => {
@@ -274,6 +278,10 @@ export class PlaceViolationComponent {
     'بهاء عبدالمؤمن', 'ابانوب زكريا', 'محمود عطيه', 'محمد منصور', 'كيرلس صمزئيل',
     'كيرلس سامح', 'امير مجدي', 'جوزيف جمال', 'ابراهيم محمد', 'مدحت وصفي', 'يوسف ايمن', 'خالد خليفه',
     'دعاء احمد', 'جالا جمال', 'نورهان محمد', 'مريم يني', 'مريان اميل'
+  ];
+
+  supervisorOptions: string[] = [
+    'شيرين اكرام', 'حسام حسن', 'روماني مجدي', 'احمد جلال'
   ];
 
   findClosestMatch(input: string, options: string[]): string | null {
