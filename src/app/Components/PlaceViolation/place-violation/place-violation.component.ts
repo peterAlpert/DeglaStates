@@ -26,6 +26,8 @@ export class PlaceViolationComponent {
   isRecognizing: boolean = false;
   activeField: string = '';
 
+  isControlKeyPressed: boolean = false;
+
   @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
@@ -52,6 +54,9 @@ export class PlaceViolationComponent {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition() || new (window as any).SpeechRecognition();
     this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = true;
+    this.recognition.maxAlternatives = 3;
+
     this.recognition.interimResults = true;
 
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
@@ -64,32 +69,68 @@ export class PlaceViolationComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
-
+      let transcript = '';
       for (let i = 0; i < event.results.length; ++i) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
+        transcript += event.results[i][0].transcript;
       }
 
-      this.formData[this.activeField] = finalTranscript || interimTranscript;
+      transcript = transcript.trim();
 
-      // ✨ Animation عند انتهاء التسجيل
+      // 🟡 لو الحقل هو control - حاول تطابقه
+      if (this.activeField === 'control') {
+        const matched = this.findClosestMatch(transcript, this.controlOptions);
+        this.formData['control'] = matched || transcript;
+      } else {
+        this.formData[this.activeField] = transcript;
+      }
+
+      // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
       if (inputElement) {
         inputElement.classList.add('glow-update');
         setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
       }
-
     };
+
+
+    // this.recognition.onresult = (event: any) => {
+
+    //   let interimTranscript = '';
+    //   let finalTranscript = '';
+
+
+    //   for (let i = 0; i < event.results.length; ++i) {
+    //     const transcript = event.results[i][0].transcript;
+    //     if (event.results[i].isFinal) {
+    //       finalTranscript += transcript;
+    //     } else {
+    //       interimTranscript += transcript;
+    //     }
+    //   }
+
+    //   this.formData[this.activeField] = finalTranscript || interimTranscript;
+
+    //   // ✨ Animation عند انتهاء التسجيل
+    //   const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+    //   if (inputElement) {
+    //     inputElement.classList.add('glow-update');
+    //     setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+    //   }
+
+    // };
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
+
+      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      if (this.activeField && this.isControlKeyPressed) {
+        this.recognition.start();
+        this.isRecognizing = true;
+        return;
+      }
+
+
+      this.activeField = '';
 
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextField = this.fields[currentIndex + 1];
@@ -131,6 +172,8 @@ export class PlaceViolationComponent {
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Control' && !this.isRecognizing) {
+      this.isControlKeyPressed = true;
+
       const el = document.activeElement as HTMLInputElement;
       const placeholder = el.placeholder;
 
@@ -147,6 +190,7 @@ export class PlaceViolationComponent {
   @HostListener('document:keyup', ['$event'])
   handleKeyUp(event: KeyboardEvent) {
     if (event.key === 'Control' && this.isRecognizing) {
+      this.isControlKeyPressed = false;
       this.stopRecognition();
     }
   }
@@ -224,4 +268,55 @@ export class PlaceViolationComponent {
       return this.formData[f.key] && this.formData[f.key].trim() !== '';
     });
   }
+
+  controlOptions: string[] = [
+    'بيتر كميل', 'محمد سيد', 'سيد حسن', 'مينا اشرف', 'مينا مخلص', 'محمود بهاء', 'بولا نبيل',
+    'بهاء عبدالمؤمن', 'ابانوب زكريا', 'محمود عطيه', 'محمد منصور', 'كيرلس صمزئيل',
+    'كيرلس سامح', 'امير مجدي', 'جوزيف جمال', 'ابراهيم محمد', 'مدحت وصفي', 'يوسف ايمن', 'خالد خليفه',
+    'دعاء احمد', 'جالا جمال', 'نورهان محمد', 'مريم يني', 'مريان اميل'
+  ];
+
+  findClosestMatch(input: string, options: string[]): string | null {
+    input = input.toLowerCase().trim();
+    let bestMatch = '';
+    let bestScore = Number.MAX_SAFE_INTEGER;
+
+    for (let opt of options) {
+      const score = this.levenshteinDistance(input, opt.toLowerCase());
+      if (score < bestScore) {
+        bestScore = score;
+        bestMatch = opt;
+      }
+    }
+
+    return bestScore <= 5 ? bestMatch : null; // بيقبل نسبة خطأ بسيطة
+  }
+
+  levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[b.length][a.length];
+  }
+
 }
