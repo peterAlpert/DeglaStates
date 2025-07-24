@@ -39,11 +39,20 @@ export class ShowMissingChildComponent implements OnInit {
     this._MissingChildService.getAllChildren().subscribe({
       next: (data: any[]) => {
         this.children = data;
-        this.calculateStats(); // <-- حساب الإحصائيات
+
+        // ✅ ترتيب تصاعدي حسب التاريخ
+        this.children.sort((a: any, b: any) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateA.getTime() - dateB.getTime();
+        });
+
+        this.calculateStats(); // <-- حساب الإحصائيات بعد الترتيب
       },
       error: () => this.toastr.error('❌ فشل تحميل البيانات')
     });
   }
+
 
   calculateStats() {
     this.totalChildren = this.children.length;
@@ -89,6 +98,7 @@ export class ShowMissingChildComponent implements OnInit {
       }
     });
   }
+
 
 
   exportToExcel(): void {
