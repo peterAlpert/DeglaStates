@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, ElementRef, HostListener, QueryList, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { LostItemsService } from '../../../Services/lost-items.service';
@@ -31,12 +32,15 @@ export class AddLostItemComponent {
     { key: 'ItemNumber', label: 'رقم البند' },
   ];
 
-
   recognition: any;
   isRecognizing = false;
   activeField = '';
 
-  constructor(private service: LostItemsService, private toastr: ToastrService) {
+  constructor(
+    private service: LostItemsService,
+    private toastr: ToastrService,
+    private _SharedService: SharedService
+  ) {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
@@ -85,13 +89,13 @@ export class AddLostItemComponent {
   startRecognition(field: string) {
     this.activeField = field;
     this.isRecognizing = true;
-    this.playBeep('start')
+    this._SharedService.playBeep('start')
     this.recognition.start();
   }
 
   stopRecognition() {
     if (this.isRecognizing) {
-      this.playBeep('end')
+      this._SharedService.playBeep('end')
       this.recognition.stop();
     }
   }
@@ -100,11 +104,6 @@ export class AddLostItemComponent {
     this.formData[key] = '';
   }
 
-  playBeep(type: 'start' | 'end') {
-    const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
-    audio.play();
-  }
 
   isFormValid(): boolean {
     return this.fields.every(f => {
@@ -140,6 +139,10 @@ export class AddLostItemComponent {
           if (field.key !== 'date' && field.key !== 'time') {
             this.formData[field.key] = '';
           }
+          else if (this.activeField === 'ItemNumber') {
+            this.formData[this.activeField] = this.formData[this.activeField].replace(/\s+/g, '');
+          }
+
         });
 
         this.onDateChange();
@@ -162,5 +165,12 @@ export class AddLostItemComponent {
   @HostListener('document:keyup.control')
   handleCtrlUp() {
     this.stopRecognition();
+  }
+
+  getFilteredOfficers(): string[] {
+    const input = this.formData.SecurityOfficer?.trim() || '';
+    return this._SharedService.securityOfficers.filter(o =>
+      o.includes(input)
+    );
   }
 }

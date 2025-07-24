@@ -29,6 +29,10 @@ export class SharedService {
     'نسله', 'بكره', 'كاندي'
   ];
 
+  securityOfficers = [
+    'عاطف', 'خالد', 'محمد سعد', 'مرثا', 'ريمون',
+  ];
+
   findClosestMatch(input: string, options: string[]): string | null {
     input = input.toLowerCase().trim();
     let bestMatch = '';
