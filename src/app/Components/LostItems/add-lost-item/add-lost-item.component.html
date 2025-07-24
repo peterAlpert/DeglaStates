@@ -33,14 +33,6 @@
                                 [type]="field.type || 'text'" class="form-control bg-dark text-light border-light"
                                 placeholder="{{field.label}}" #fieldInput />
 
-                            <!-- ✅ Suggestion Box لحقل مسئول الأمن -->
-                            <ul *ngIf="field.key === 'SecurityOfficer' && formData.SecurityOfficer && getFilteredOfficers().length"
-                                class="suggestions mt-1">
-                                <li *ngFor="let officer of getFilteredOfficers()"
-                                    (click)="formData.SecurityOfficer = officer">
-                                    {{ officer }}
-                                </li>
-                            </ul>
 
                             <!-- زر المايك -->
                             <button type="button" class="btn btn-sm rounded-circle"

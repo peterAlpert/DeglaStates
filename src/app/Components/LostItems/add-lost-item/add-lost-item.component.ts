@@ -62,7 +62,15 @@ export class AddLostItemComponent {
           finalTranscript += event.results[i][0].transcript;
         }
       }
-      this.formData[this.activeField] = finalTranscript;
+
+      if (this.activeField === 'SecurityOfficer') {
+        this.formData.SecurityOfficer = this._SharedService.findClosestMatch(finalTranscript, this._SharedService.securityOfficers);
+      } else if (this.activeField === 'ItemNumber') {
+        this.formData[this.activeField] = this.formData[this.activeField].replace(/\s+/g, '');
+      }
+      else {
+        this.formData[this.activeField] = finalTranscript;
+      }
 
       const input = document.getElementsByName(this.activeField)[0] as HTMLElement;
       input?.classList.add('glow-update');
@@ -138,9 +146,6 @@ export class AddLostItemComponent {
         this.fields.forEach(field => {
           if (field.key !== 'date' && field.key !== 'time') {
             this.formData[field.key] = '';
-          }
-          else if (this.activeField === 'ItemNumber') {
-            this.formData[this.activeField] = this.formData[this.activeField].replace(/\s+/g, '');
           }
 
         });
