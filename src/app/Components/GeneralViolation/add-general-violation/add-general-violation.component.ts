@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, HostListener, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +22,8 @@ export class GeneralViolationFormComponent {
   lastUsedDate: string = '';
   lastUsedTime: string = '';
 
+  isControlKeyPressed: boolean = false;
+
   @ViewChildren('fieldInput') inputs!: QueryList<ElementRef>;
 
   fields = [
@@ -43,35 +46,71 @@ export class GeneralViolationFormComponent {
 
   constructor(
     private service: GeneralViolationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private _SharedService: SharedService
   ) {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = true;
+    this.recognition.maxAlternatives = 3;
     this.recognition.interimResults = true;
 
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
     this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
 
+    if (this.lastUsedDate && this.lastUsedTime) {
+      this.formData.date = this.lastUsedDate;
+      this.formData.time = this.lastUsedTime;
+      this.onDateChange();
+    }
 
     this.recognition.onresult = (event: any) => {
-      let finalTranscript = '';
+      let transcript = '';
       for (let i = 0; i < event.results.length; ++i) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalTranscript += transcript;
+        transcript += event.results[i][0].transcript;
       }
-      this.formData[this.activeField] = finalTranscript;
 
-      const input = document.getElementsByName(this.activeField)[0] as HTMLElement;
-      input?.classList.add('glow-update');
-      setTimeout(() => input?.classList.remove('glow-update'), 1500);
+      transcript = transcript.trim();
+
+      // 🟡 لو الحقل هو control - حاول تطابقه
+      if (this.activeField === 'control') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
+        this.formData['control'] = matched || transcript;
+      } else if (this.activeField === 'supervisor') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || transcript;
+
+      } else if (this.activeField === 'location') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
+        this.formData['location'] = matched || transcript;
+
+      } else {
+        this.formData[this.activeField] = transcript;
+      }
+
+      // ✨ Animation عند التحديث
+      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+      if (inputElement) {
+        inputElement.classList.add('glow-update');
+        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+      }
     };
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
+      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      if (this.activeField && this.isControlKeyPressed) {
+        this.recognition.start();
+        this.isRecognizing = true;
+        return;
+      }
+
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextInput = this.inputs.toArray()[currentIndex + 1];
+      this.activeField = '';
+
       if (nextInput) nextInput.nativeElement.focus();
 
       this.activeField = '';
@@ -81,19 +120,21 @@ export class GeneralViolationFormComponent {
   startRecognition(field: string) {
     this.activeField = field;
     this.isRecognizing = true;
-    this.playBeep('start');
+    this._SharedService.playBeep('start');
     this.recognition.start();
   }
 
   stopRecognition() {
     if (this.isRecognizing) {
-      this.playBeep('end');
+      this._SharedService.playBeep('end');
       this.recognition.stop();
     }
   }
 
   @HostListener('document:keydown.control', ['$event'])
   handleCtrlDown(event: KeyboardEvent) {
+    this.isControlKeyPressed = true;
+
     const el = document.activeElement as HTMLInputElement;
     const field = this.fields.find(f => f.label === el.placeholder);
     if (field) this.startRecognition(field.key);
@@ -101,14 +142,11 @@ export class GeneralViolationFormComponent {
 
   @HostListener('document:keyup.control')
   handleCtrlUp() {
+    this.isControlKeyPressed = false;
+
     this.stopRecognition();
   }
 
-  playBeep(type: 'start' | 'end') {
-    const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
-    audio.play();
-  }
 
   clearField(key: string) {
     this.formData[key] = '';

@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { PlaceViolationService } from '../../../Services/place-violation.service';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
@@ -49,14 +50,14 @@ export class PlaceViolationComponent {
 
   constructor(
     private _PlaceViolationService: PlaceViolationService,
-    private _ToastrService: ToastrService
+    private _ToastrService: ToastrService,
+    private _SharedService: SharedService
   ) {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition() || new (window as any).SpeechRecognition();
     this.recognition.lang = 'ar-EG';
     this.recognition.continuous = true;
     this.recognition.maxAlternatives = 3;
-
     this.recognition.interimResults = true;
 
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
@@ -78,14 +79,14 @@ export class PlaceViolationComponent {
 
       // 🟡 لو الحقل هو control - حاول تطابقه
       if (this.activeField === 'control') {
-        const matched = this.findClosestMatch(transcript, this.controlOptions);
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
         this.formData['control'] = matched || transcript;
       } else if (this.activeField === 'supervisor') {
-        const matched = this.findClosestMatch(transcript, this.supervisorOptions);
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
         this.formData['supervisor'] = matched || transcript;
 
       } else if (this.activeField === 'location') {
-        const matched = this.findClosestMatch(transcript, this.locationOptions);
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
         this.formData['location'] = matched || transcript;
 
       } else {
@@ -161,21 +162,7 @@ export class PlaceViolationComponent {
     };
   }
 
-  startRecognition(fieldKey: string) {
-    if (!this.isRecognizing) {
-      this.activeField = fieldKey;
-      this.isRecognizing = true;
-      this.playBeep('start');
-      this.recognition.start();
-    }
-  }
 
-  stopRecognition() {
-    if (this.isRecognizing) {
-      this.playBeep('end');
-      this.recognition.stop();
-    }
-  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
@@ -249,7 +236,6 @@ export class PlaceViolationComponent {
         this.isSubmitting = false;
       },
       error: err => {
-        console.error('❌ فشل في الإرسال', err);
         this._ToastrService.error('❌ حدث خطأ أثناء الإرسال');
         this.isSubmitting = false;
       }
@@ -264,12 +250,6 @@ export class PlaceViolationComponent {
     }
   }
 
-  playBeep(type: 'start' | 'end') {
-    const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
-    audio.play();
-  }
-
   isFormValid(): boolean {
     return this.fields.every(f => {
       if (f.key === 'date' || f.key === 'day') return true;
@@ -277,64 +257,22 @@ export class PlaceViolationComponent {
     });
   }
 
-  controlOptions: string[] = [
-    'بيتر كميل', 'محمد سيد', 'سيد حسن', 'مينا اشرف', 'مينا مخلص', 'محمود بهاء', 'بولا نبيل',
-    'بهاء عبدالمؤمن', 'ابانوب زكريا', 'محمود عطيه', 'محمد منصور', 'كيرلس صمزئيل',
-    'كيرلس سامح', 'امير مجدي', 'جوزيف جمال', 'ابراهيم محمد', 'مدحت وصفي', 'يوسف ايمن', 'خالد خليفه',
-    'دعاء احمد', 'جالا جمال', 'نورهان محمد', 'مريم يني', 'مريان اميل'
-  ];
 
-  supervisorOptions: string[] = [
-    'شيرين اكرام', 'حسام حسن', 'روماني مجدي', 'احمد جلال'
-  ];
-
-  locationOptions: string[] = [
-    'المبني الاجتماعي', 'مبني الاسبورت', 'مبني الخدمات', 'الكويسكات', 'الجاردن', 'التراك', 'البحيره',
-    'جاردن 1', 'جاردن 2', 'جاردن 3', 'الفتنس', 'الملاعب', 'المرحله', 'ملعب 1', 'ملعب 2', 'ملعب 3', 'ملعب 4',
-    'رامب الاسبورت', 'رامب الاجتماعي',
-  ];
-
-  findClosestMatch(input: string, options: string[]): string | null {
-    input = input.toLowerCase().trim();
-    let bestMatch = '';
-    let bestScore = Number.MAX_SAFE_INTEGER;
-
-    for (let opt of options) {
-      const score = this.levenshteinDistance(input, opt.toLowerCase());
-      if (score < bestScore) {
-        bestScore = score;
-        bestMatch = opt;
-      }
+  startRecognition(fieldKey: string) {
+    if (!this.isRecognizing) {
+      this.activeField = fieldKey;
+      this.isRecognizing = true;
+      this._SharedService.playBeep('start');
+      this.recognition.start();
     }
-
-    return bestScore <= 5 ? bestMatch : null; // بيقبل نسبة خطأ بسيطة
   }
 
-  levenshteinDistance(a: string, b: string): number {
-    const matrix: number[][] = [];
-
-    for (let i = 0; i <= b.length; i++) {
-      matrix[i] = [i];
+  stopRecognition() {
+    if (this.isRecognizing) {
+      this._SharedService.playBeep('end');
+      this.recognition.stop();
     }
-    for (let j = 0; j <= a.length; j++) {
-      matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-      for (let j = 1; j <= a.length; j++) {
-        if (b.charAt(i - 1) === a.charAt(j - 1)) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1,
-            matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1
-          );
-        }
-      }
-    }
-
-    return matrix[b.length][a.length];
   }
+
 
 }

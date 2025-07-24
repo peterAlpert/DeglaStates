@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, HostListener, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -41,34 +42,90 @@ export class MissingChildComponent {
   isRecognizing = false;
   activeField = '';
 
-  constructor(private service: MissingChildService, private toastr: ToastrService) {
+  isControlKeyPressed: boolean = false;
+
+  constructor(
+    private service: MissingChildService,
+    private toastr: ToastrService,
+    private _SharedService: SharedService
+  ) {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = true;
+    this.recognition.maxAlternatives = 3;
+
     this.recognition.interimResults = true;
 
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
     this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
 
+    if (this.lastUsedDate && this.lastUsedTime) {
+      this.formData.date = this.lastUsedDate;
+      this.formData.time = this.lastUsedTime;
+      this.onDateChange();
+    }
 
     this.recognition.onresult = (event: any) => {
-      let finalTranscript = '';
+      let transcript = '';
       for (let i = 0; i < event.results.length; ++i) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalTranscript += transcript;
+        transcript += event.results[i][0].transcript;
       }
-      this.formData[this.activeField] = finalTranscript;
 
-      const input = document.getElementsByName(this.activeField)[0] as HTMLElement;
-      input?.classList.add('glow-update');
-      setTimeout(() => input?.classList.remove('glow-update'), 1500);
+      transcript = transcript.trim();
+
+
+
+      if (this.activeField === 'control') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
+        this.formData['control'] = matched || transcript;
+
+      } else if (this.activeField === 'supervisor') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || transcript;
+
+      } else if (this.activeField === 'location') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
+        this.formData['location'] = matched || transcript;
+
+      } else {
+        this.formData[this.activeField] = transcript;
+      }
+
+      // ✨ Animation عند التحديث
+      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+      if (inputElement) {
+        inputElement.classList.add('glow-update');
+        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+      }
     };
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
-      const index = this.fields.findIndex(f => f.key === this.activeField);
-      const next = this.inputs.toArray()[index + 1];
-      if (next) next.nativeElement.focus();
+
+      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      if (this.activeField && this.isControlKeyPressed) {
+        this.recognition.start();
+        this.isRecognizing = true;
+        return;
+      }
+
+
+      // انتقال للفيلد اللي بعده
+      const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
+      const nextField = this.fields[currentIndex + 1];
+
+      if (nextField) {
+        setTimeout(() => {
+          const inputElements = this.inputs.toArray();
+          const nextInput = inputElements[currentIndex + 1];
+
+          if (nextInput) {
+            nextInput.nativeElement.focus();
+          }
+        }, 100);
+      }
+
       this.activeField = '';
     };
   }
@@ -76,13 +133,13 @@ export class MissingChildComponent {
   startRecognition(field: string) {
     this.activeField = field;
     this.isRecognizing = true;
-    this.playBeep('start');
+    this._SharedService.playBeep('start');
     this.recognition.start();
   }
 
   stopRecognition() {
     if (this.isRecognizing) {
-      this.playBeep('end');
+      this._SharedService.playBeep('end');
       this.recognition.stop();
     }
   }
@@ -98,14 +155,19 @@ export class MissingChildComponent {
 
   @HostListener('document:keydown.control', ['$event'])
   handleCtrlDown(event: KeyboardEvent) {
-    const el = document.activeElement as HTMLInputElement;
-    const field = this.fields.find(f => f.label === el.placeholder);
-    if (field) this.startRecognition(field.key);
+    if (event.key === 'Control') {
+      this.isControlKeyPressed = true;
+      const el = document.activeElement as HTMLInputElement;
+      const field = this.fields.find(f => f.label === el.placeholder);
+      if (field) this.startRecognition(field.key);
+    }
   }
 
   @HostListener('document:keyup.control', ['$event'])
   handleCtrlUp() {
+    this.isControlKeyPressed = false;
     this.stopRecognition();
+
   }
 
   clearField(key: string) {
@@ -156,9 +218,5 @@ export class MissingChildComponent {
     });
   }
 
-  playBeep(type: 'start' | 'end') {
-    const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
-    audio.play();
-  }
+
 }

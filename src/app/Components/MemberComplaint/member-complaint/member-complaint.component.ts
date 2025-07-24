@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, ElementRef, HostListener, QueryList, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -35,34 +36,89 @@ export class MemberComplaintComponent {
   isRecognizing = false;
   activeField: string = '';
 
+  isControlKeyPressed: boolean = false;
+
+
   constructor(
     private _service: MemberComplaintService,
-    private _toast: ToastrService
+    private _toast: ToastrService,
+    private _SharedService: SharedService
   ) {
     const { webkitSpeechRecognition }: any = window as any;
     this.recognition = new webkitSpeechRecognition() || new (window as any).SpeechRecognition();
     this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = true;
+    this.recognition.maxAlternatives = 3;
     this.recognition.interimResults = true;
 
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
     this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
 
+    if (this.lastUsedDate && this.lastUsedTime) {
+      this.formData.date = this.lastUsedDate;
+      this.formData.time = this.lastUsedTime;
+      this.onDateChange();
+    }
 
     this.recognition.onresult = (event: any) => {
-      let final = '', interim = '';
+      let transcript = '';
       for (let i = 0; i < event.results.length; ++i) {
-        const text = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final += text;
-        else interim += text;
+        transcript += event.results[i][0].transcript;
       }
-      this.formData[this.activeField] = final || interim;
+
+      transcript = transcript.trim();
+
+      // 🟡 لو الحقل هو control - حاول تطابقه
+      if (this.activeField === 'control') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
+        this.formData['control'] = matched || transcript;
+      } else if (this.activeField === 'supervisor') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || transcript;
+
+      } else if (this.activeField === 'location') {
+        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
+        this.formData['location'] = matched || transcript;
+
+      } else {
+        this.formData[this.activeField] = transcript;
+      }
+
+      // ✨ Animation عند التحديث
+      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+      if (inputElement) {
+        inputElement.classList.add('glow-update');
+        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+      }
     };
+
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
+
+      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      if (this.activeField && this.isControlKeyPressed) {
+        this.recognition.start();
+        this.isRecognizing = true;
+        return;
+      }
+
+
       const current = this.fields.findIndex(f => f.key === this.activeField);
       const next = this.inputs.toArray()[current + 1];
-      if (next) next.nativeElement.focus();
+      this.activeField = '';
+
+      if (next) {
+        setTimeout(() => {
+          const inputElements = this.inputs.toArray();
+          const nextInput = inputElements[current + 1];
+
+          if (nextInput) {
+            nextInput.nativeElement.focus();
+          }
+        }, 100);
+      }
+
       this.activeField = '';
     };
   }
@@ -79,14 +135,14 @@ export class MemberComplaintComponent {
     if (!this.isRecognizing) {
       this.activeField = key;
       this.isRecognizing = true;
-      this.playBeep('start');
+      this._SharedService.playBeep('start');
       this.recognition.start();
     }
   }
 
   stopRecognition() {
     if (this.isRecognizing) {
-      this.playBeep('end');
+      this._SharedService.playBeep('end');
       this.recognition.stop();
     }
   }
@@ -134,6 +190,8 @@ export class MemberComplaintComponent {
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Control' && !this.isRecognizing) {
+      this.isControlKeyPressed = true;
+
       const el = document.activeElement as HTMLInputElement;
       const placeholder = el.placeholder;
 
@@ -152,15 +210,12 @@ export class MemberComplaintComponent {
   @HostListener('document:keyup', ['$event'])
   handleKeyUp(event: KeyboardEvent) {
     if (event.key === 'Control' && this.isRecognizing) {
+      this.isControlKeyPressed = false;
+
       this.stopRecognition();
     }
   }
 
-  playBeep(type: 'start' | 'end') {
-    const audio = new Audio();
-    audio.src = type === 'start' ? 'assets/start-beep.mp3' : 'assets/end-beep.mp3';
-    audio.play();
-  }
 
   isFormValid(): boolean {
     return this.fields.every(f => {

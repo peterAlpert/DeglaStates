@@ -45,6 +45,11 @@ export class AddLostItemComponent {
     this.lastUsedDate = localStorage.getItem('lastUsedDate') || '';
     this.lastUsedTime = localStorage.getItem('lastUsedTime') || '';
 
+    if (this.lastUsedDate && this.lastUsedTime) {
+      this.formData.date = this.lastUsedDate;
+      this.formData.time = this.lastUsedTime;
+      this.onDateChange();
+    }
 
     this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
