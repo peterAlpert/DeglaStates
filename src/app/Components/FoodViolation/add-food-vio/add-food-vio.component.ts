@@ -85,9 +85,14 @@ export class AddFoodVioComponent {
         const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
         this.formData['location'] = matched || transcript;
 
+      } else if (this.activeField === 'membershipNo') {
+        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
+        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['membershipNo'] = cleaned;
       } else {
         this.formData[this.activeField] = transcript;
       }
+
 
       // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
