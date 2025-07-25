@@ -102,7 +102,18 @@ export class AddFightComponent {
         // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
         const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['firstPersonMembership'] = cleaned;
-      } else {
+      } else if (this.activeField === 'firstPersonGuestsMembership') {
+        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['firstPersonGuestsMembership'] = cleaned;
+      } else if (this.activeField === 'secondPersonMembership') {
+        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['secondPersonMembership'] = cleaned;
+      }
+      else if (this.activeField === 'secondPersonGuestsMembership') {
+        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['secondPersonGuestsMembership'] = cleaned;
+      }
+      else {
         this.formData[this.activeField] = transcript;
       }
 

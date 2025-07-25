@@ -89,6 +89,9 @@ export class GeneralViolationFormComponent {
         // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
         const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['membershipNo'] = cleaned;
+      } else if (this.activeField === 'guestsMembershipNo') {
+        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['guestsMembershipNo'] = cleaned;
       } else {
         this.formData[this.activeField] = transcript;
       }
