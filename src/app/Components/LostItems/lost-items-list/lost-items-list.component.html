@@ -53,24 +53,23 @@
         </div>
 
         <!-- إحصائيات -->
-        <div class="mt-4 px-3">
-            <h5 class="text-warning fw-bold mb-3">📊 إحصائيات حسب نوع المفقود:</h5>
-            <div class="bg-secondary text-light p-2 rounded shadow-sm text-center">
-                <table>
-                    <thead *ngFor="let key of statistics | keyvalue">
-                        <tr>
-                            <th>{{ key.key }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="fw-bold text-warning" *ngFor="let key of statistics | keyvalue">
-                        <tr>
-                            <td></td>{{ key.value }}
-                        </tr>
-                    </tbody>
-                </table>
-                <!-- {{ key.key }}: <span class="fw-bold text-warning">{{ key.value }}</span> -->
-            </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark text-center align-middle w-50 mx-auto mt-3" dir="rtl">
+                <thead class="table-warning text-dark">
+                    <tr>
+                        <th>نوع المفقود</th>
+                        <th>العدد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let key of statistics | keyvalue">
+                        <td>{{ key.key }}</td>
+                        <td class="fw-bold text-warning">{{ key.value }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
 
 
         <!-- تصدير -->
