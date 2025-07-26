@@ -24,10 +24,15 @@ export class LostItemsListComponent implements OnInit {
 
   getItems() {
     this.service.getAllItems().subscribe({
-      next: (res) => (this.lostItems = res),
+      next: (res) => {
+        // ترتيب حسب التاريخ من الأحدث إلى الأقدم
+        this.lostItems = res.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        this.calculateStatistics();
+      },
       error: () => this.toastr.error('حدث خطأ أثناء تحميل البيانات')
     });
   }
+
 
   saveEdit(item: any) {
     this.service.updateItem(item.id, item).subscribe({
@@ -60,6 +65,35 @@ export class LostItemsListComponent implements OnInit {
       }
     });
   }
+
+  statistics: { [key: string]: number } = {};
+
+  calculateStatistics() {
+    const categories: { [key: string]: string[] } = {
+      'موبايل': ['موبايل', 'موبيل', 'هاتف', 'موبايلات'],
+      'محفظة': ['محفظة', 'محفظه'],
+      'شنطة': ['شنطة', 'شنطه', 'حقيبة'],
+      'نقود': ['نقود', 'فلوس', 'مبلغ', 'مال'],
+      'هافربورد': ['هافربورد', 'سكوتر', 'اسكوتر'],
+      'مفتاح': ['مفتاح', 'مفاتيح'],
+      'نظارة': ['نظارة', 'نضارة'],
+      // أضف كلمات مفتاحية حسب الحاجة
+    };
+
+    // تصفير الإحصائية
+    this.statistics = {};
+
+    for (let item of this.lostItems) {
+      const name = item.itemName?.toLowerCase() || '';
+      for (let category in categories) {
+        if (categories[category].some(keyword => name.includes(keyword))) {
+          this.statistics[category] = (this.statistics[category] || 0) + 1;
+          break; // أول فئة تنطبق تكفي
+        }
+      }
+    }
+  }
+
 
 
   exportToExcel(): void {

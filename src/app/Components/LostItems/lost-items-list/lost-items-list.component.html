@@ -52,6 +52,19 @@
             </div>
         </div>
 
+        <!-- إحصائيات -->
+        <div class="mt-4 px-3">
+            <h5 class="text-warning fw-bold mb-3">📊 إحصائيات حسب نوع المفقود:</h5>
+            <div class="row">
+                <div class="col-md-3 mb-2" *ngFor="let key of statistics | keyvalue">
+                    <div class="bg-secondary text-light p-2 rounded shadow-sm text-center">
+                        {{ key.key }}: <span class="fw-bold text-warning">{{ key.value }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- تصدير -->
         <div class="text-center mt-4">
             <button class="btn btn-outline-light" (click)="exportToExcel()">📤 تصدير إلى Excel</button>
