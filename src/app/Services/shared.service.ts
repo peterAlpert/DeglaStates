@@ -30,7 +30,7 @@ export class SharedService {
   ];
 
   securityOfficers = [
-    'عاطف', 'خالد', 'محمد سعد', 'مرثا', 'ريمون', 'هاني', 'هدي'
+    'عاطف', 'خالد', 'محمد سعد', 'مرثا', 'ريمون', 'هاني', 'هدي', 'مصطفى', 'محمد ربيع'
   ];
 
   findClosestMatch(input: string, options: string[]): string | null {
