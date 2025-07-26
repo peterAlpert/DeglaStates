@@ -192,7 +192,8 @@ export class GeneralViolationFormComponent {
 
         this.formData = {
           date,
-          time
+          time,
+          violationCategory: 'عضو'
         };
 
         // فرغ باقي الحقول
