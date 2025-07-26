@@ -58,7 +58,19 @@
             <div class="row">
                 <div class="col-md-3 mb-2" *ngFor="let key of statistics | keyvalue">
                     <div class="bg-secondary text-light p-2 rounded shadow-sm text-center">
-                        {{ key.key }}: <span class="fw-bold text-warning">{{ key.value }}</span>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>{{ key.key }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-bold text-warning">
+                                <tr>
+                                    <td></td>{{ key.value }}
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- {{ key.key }}: <span class="fw-bold text-warning">{{ key.value }}</span> -->
                     </div>
                 </div>
             </div>
