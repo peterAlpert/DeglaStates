@@ -33,6 +33,17 @@ export class SharedService {
     'عاطف', 'خالد', 'محمد سعد', 'مرثا', 'ريمون', 'هاني', 'هدي', 'مصطفى', 'محمد ربيع'
   ];
 
+  convertTo12Hour(time24: string): string {
+    if (!time24) return '';
+    const [hourStr, minuteStr] = time24.split(':');
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    const ampm = hour >= 12 ? 'م' : 'ص';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+  }
+
   findClosestMatch(input: string, options: string[]): string | null {
     input = input.toLowerCase().trim();
     let bestMatch = '';

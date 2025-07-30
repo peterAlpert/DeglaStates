@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { EmployeeViolationService } from './../../../Services/employee-violation.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -19,6 +20,7 @@ export class ShowEmployeeViolationsComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
+    private _SharedService: SharedService,
     private toastr: ToastrService,
     private _EmployeeViolationService: EmployeeViolationService
   ) { }
@@ -71,7 +73,7 @@ export class ShowEmployeeViolationsComponent implements OnInit {
     const exportData = this.violations.map(v => ({
       'التاريخ': v.date,
       'اليوم': v.day,
-      'التوقيت': v.time,
+      'التوقت': this._SharedService.convertTo12Hour(v.time),
       'المكان': v.location,
       'المشكلة': v.issue,
       'رقم SAP': v.sapNumber,

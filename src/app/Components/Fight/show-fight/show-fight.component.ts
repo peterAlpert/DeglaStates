@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,8 +24,10 @@ export class ShowFightComponent implements OnInit {
 
   constructor(
     private fightService: FightService,
+    private _SharedService: SharedService,
     private toastr: ToastrService
   ) { }
+
 
   ngOnInit(): void {
     this.getFights();
@@ -94,7 +97,7 @@ export class ShowFightComponent implements OnInit {
       'م': i + 1,
       'التاريخ': f.date,
       'اليوم': f.day,
-      'التوقيت': f.time,
+      'الوقت': this._SharedService.convertTo12Hour(f.time),
       'المكان': f.location,
       'الطرف الأول': f.firstPerson,
       'عضوية الأول': f.firstPersonMembership,

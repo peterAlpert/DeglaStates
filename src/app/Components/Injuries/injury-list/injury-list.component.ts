@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, OnInit } from '@angular/core';
 import { InjuryService } from '../../../Services/injury.service';
 import { ToastrService } from 'ngx-toastr';
@@ -29,6 +30,7 @@ export class InjuryListComponent implements OnInit {
 
   constructor(
     private injuryService: InjuryService,
+    private _SharedService: SharedService,
     private toastr: ToastrService
   ) { }
 
@@ -107,7 +109,7 @@ export class InjuryListComponent implements OnInit {
     const exportData = this.injuries.map(i => ({
       'التاريخ': i.date,
       'اليوم': i.day,
-      'التوقيت': i.time,
+      'التوقيت': this._SharedService.convertTo12Hour(i.time),
       'المكان': i.location,
       'اسم العضو المصاب': i.memberName,
       'رقم العضوية': i.membershipNo,

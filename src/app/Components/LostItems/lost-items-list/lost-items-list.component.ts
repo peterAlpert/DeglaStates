@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
@@ -16,7 +17,10 @@ import Swal from 'sweetalert2';
 export class LostItemsListComponent implements OnInit {
   lostItems: any[] = [];
 
-  constructor(private service: LostItemsService, private toastr: ToastrService) { }
+  constructor(
+    private service: LostItemsService,
+    private _SharedService: SharedService,
+    private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.getItems();
@@ -105,7 +109,7 @@ export class LostItemsListComponent implements OnInit {
     const exportData = this.lostItems.map(item => ({
       'التاريخ': item.date,
       'اليوم': item.day,
-      'الوقت': item.time,
+      'الوقت': this._SharedService.convertTo12Hour(item.time),
       'اسم المفقود': item.name,
       'المكان': item.location,
       'الكنترول': item.control,

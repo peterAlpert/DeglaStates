@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { GeneralViolationService } from '../../../Services/general-violation.service';
@@ -18,6 +19,7 @@ export class ShowFoodVioComponent {
 
   constructor(
     private _service: GeneralViolationService,
+    private _SharedService: SharedService,
     private _toastr: ToastrService
   ) { }
 
@@ -114,7 +116,8 @@ export class ShowFoodVioComponent {
       'م': i + 1,
       'التاريخ': v.date,
       'اليوم': v.day,
-      'الوقت': v.time,
+      'الوقت': this._SharedService.convertTo12Hour(v.time),
+
       'نوع المخالفة': v.violationCategory,
       'المكان': v.location,
       'اسم العضو': v.memberName,

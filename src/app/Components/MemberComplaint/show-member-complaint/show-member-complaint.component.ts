@@ -1,3 +1,4 @@
+import { SharedService } from './../../../Services/shared.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +20,7 @@ export class ShowMemberComplaintComponent implements OnInit {
 
   constructor(
     private service: MemberComplaintService,
+    private _SharedService: SharedService,
     private toastr: ToastrService
   ) { }
 
@@ -69,7 +71,7 @@ export class ShowMemberComplaintComponent implements OnInit {
   exportToExcel() {
     const exportData = this.complaints.map(c => ({
       'اليوم': c.day,
-      'التوقيت': c.time,
+      'التوقيت': this._SharedService.convertTo12Hour(c.time),
       'المكان': c.location,
       'اسم العضو': c.memberName,
       'رقم العضوية': c.membershipNumber,
