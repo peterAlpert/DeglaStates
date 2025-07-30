@@ -46,7 +46,11 @@
                 <td class="fw-bold">{{ i + 1 }}</td>
                 <td><input [(ngModel)]="v.date" class="form-control form-control-sm text-center" /></td>
                 <td><input [(ngModel)]="v.day" class="form-control form-control-sm text-center" readonly /></td>
-                <td><input [(ngModel)]="v.time" class="form-control form-control-sm text-center" /></td>
+                <td>
+                    <input [(ngModel)]="v.time" class="form-control form-control-sm text-center mb-1" />
+                    <div class="small text-warning fw-bold">{{ convertTo12Hour(v.time) }}</div>
+                </td>
+
                 <td><input [(ngModel)]="v.location" class="form-control form-control-sm text-center" /></td>
                 <td><input [(ngModel)]="v.store" class="form-control form-control-sm text-center" /></td>
                 <td><input [(ngModel)]="v.control" class="form-control form-control-sm text-center" /></td>

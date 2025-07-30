@@ -123,13 +123,25 @@ export class ShowPlaceVioComponent implements OnInit {
     this.selectedStore = '';
   }
 
+  convertTo12Hour(time24: string): string {
+    if (!time24) return '';
+    const [hourStr, minuteStr] = time24.split(':');
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    const ampm = hour >= 12 ? 'م' : 'ص';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+  }
+
+
 
   exportToExcel(): void {
     const dataTable = this.violations.map((v, index) => ({
       'رقم': index + 1,
       'تاريخ': v.date,
       'اليوم': v.day,
-      'التوقيت': v.time,
+      'التوقيت': this.convertTo12Hour(v.time),
       'المكان': v.location,
       'اسم المحل': v.store,
       'الكنترول': v.control,
