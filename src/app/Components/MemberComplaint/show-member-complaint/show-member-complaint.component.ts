@@ -74,9 +74,9 @@ export class ShowMemberComplaintComponent implements OnInit {
       'التوقيت': this._SharedService.convertTo12Hour(c.time),
       'المكان': c.location,
       'اسم العضو': c.memberName,
-      'رقم العضوية': c.membershipNumber,
-      'المشكلة': c.problem,
-      'مراقب الكنترول': c.controlSupervisor,
+      'رقم العضوية': c.membershipNo,
+      'المشكلة': c.issue,
+      'مراقب الكنترول': c.control,
       'المشرف': c.supervisor,
       'الإجراء': c.action,
       'ملاحظات': c.notes

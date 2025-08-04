@@ -102,9 +102,11 @@ export class ShowFightComponent implements OnInit {
       'الطرف الأول': f.firstPerson,
       'عضوية الأول': f.firstPersonMembership,
       'صحبتة الأول': f.firstPersonGuests,
+      'عضوية صحبتة الأول': f.firstPersonGuestsMembership,
       'الطرف الثاني': f.secondPerson,
       'عضوية الثاني': f.secondPersonMembership,
-      'صحبتة الثاني': f.secondPersonMembership,
+      'صحبتة الثاني': f.secondPersonGuests,
+      'عضوية صحبتة الثاني': f.secondPersonGuestsMembership,
       'الكنترول': f.control,
       'المشرف': f.supervisor,
       'الإجراء': f.action
