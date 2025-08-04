@@ -70,6 +70,7 @@ export class ShowMemberComplaintComponent implements OnInit {
 
   exportToExcel() {
     const exportData = this.complaints.map(c => ({
+      'التاريخ': c.date,
       'اليوم': c.day,
       'التوقيت': this._SharedService.convertTo12Hour(c.time),
       'المكان': c.location,
