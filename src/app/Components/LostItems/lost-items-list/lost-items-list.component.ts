@@ -114,7 +114,7 @@ export class LostItemsListComponent implements OnInit {
       'المكان': item.location,
       'الكنترول': item.control,
       'مسؤول الأمن': item.securityOfficer,
-      'رقم البند': item.itemCode
+      'رقم البند': item.itemNumber
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
