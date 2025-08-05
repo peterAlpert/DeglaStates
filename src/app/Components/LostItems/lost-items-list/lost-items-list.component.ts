@@ -110,7 +110,7 @@ export class LostItemsListComponent implements OnInit {
       'التاريخ': item.date,
       'اليوم': item.day,
       'الوقت': this._SharedService.convertTo12Hour(item.time),
-      'اسم المفقود': item.name,
+      'اسم المفقود': item.itemName,
       'المكان': item.location,
       'الكنترول': item.control,
       'مسؤول الأمن': item.securityOfficer,
