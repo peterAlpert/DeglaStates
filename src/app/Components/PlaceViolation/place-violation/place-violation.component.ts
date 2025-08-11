@@ -75,7 +75,8 @@ export class PlaceViolationComponent {
         transcript += event.results[i][0].transcript;
       }
 
-      transcript = transcript.trim();
+      transcript = _SharedService.cleanSpeechText(transcript.trim());
+
 
       // 🟡 لو الحقل هو control - حاول تطابقه
       if (this.activeField === 'control') {
@@ -101,32 +102,6 @@ export class PlaceViolationComponent {
       }
     };
 
-
-    // this.recognition.onresult = (event: any) => {
-
-    //   let interimTranscript = '';
-    //   let finalTranscript = '';
-
-
-    //   for (let i = 0; i < event.results.length; ++i) {
-    //     const transcript = event.results[i][0].transcript;
-    //     if (event.results[i].isFinal) {
-    //       finalTranscript += transcript;
-    //     } else {
-    //       interimTranscript += transcript;
-    //     }
-    //   }
-
-    //   this.formData[this.activeField] = finalTranscript || interimTranscript;
-
-    //   // ✨ Animation عند انتهاء التسجيل
-    //   const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-    //   if (inputElement) {
-    //     inputElement.classList.add('glow-update');
-    //     setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
-    //   }
-
-    // };
 
     this.recognition.onend = () => {
       this.isRecognizing = false;

@@ -80,7 +80,7 @@ export class InjuryComponent {
         transcript += event.results[i][0].transcript;
       }
 
-      transcript = transcript.trim();
+      transcript = _SharedService.cleanSpeechText(transcript.trim());
 
       // 🟡 لو الحقل هو control - حاول تطابقه
       if (this.activeField === 'control') {

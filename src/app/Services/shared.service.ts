@@ -33,6 +33,10 @@ export class SharedService {
     'عاطف', 'خالد', 'محمد سعد', 'مرثا', 'ريمون', 'هاني', 'هدي', 'مصطفى', 'محمد ربيع'
   ];
 
+  cleanSpeechText(text: string): string {
+    return text.replace(/[.?!]/g, '').trim();
+  }
+
   convertTo12Hour(time24: string): string {
     if (!time24) return '';
     const [hourStr, minuteStr] = time24.split(':');

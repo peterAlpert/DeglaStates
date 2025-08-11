@@ -72,7 +72,7 @@ export class MissingChildComponent {
         transcript += event.results[i][0].transcript;
       }
 
-      transcript = transcript.trim();
+      transcript = _SharedService.cleanSpeechText(transcript.trim());
 
 
 
