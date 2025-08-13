@@ -118,7 +118,7 @@ export class ShowFoodVioComponent {
       'اليوم': v.day,
       'الوقت': this._SharedService.convertTo12Hour(v.time),
 
-      'نوع المخالفة': v.violationCategory,
+      // 'نوع المخالفة': v.violationCategory,
       'المكان': v.location,
       'اسم العضو': v.memberName,
       'العضوية': v.membershipNo,
@@ -150,7 +150,7 @@ export class ShowFoodVioComponent {
 
     // توسيع الأعمدة
     ws['!cols'] = [
-      { wch: 5 }, { wch: 10 }, { wch: 8 }, { wch: 6 }, { wch: 10 },
+      { wch: 5 }, { wch: 10 }, { wch: 8 }, { wch: 6 },
       { wch: 16 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 12 },
       { wch: 10 }, { wch: 10 }, { wch: 20 }, { wch: 25 }
     ];

@@ -116,7 +116,7 @@ export class ShowGeneralViolationComponent implements OnInit {
       'اليوم': v.day,
       'التوقيت': this._SharedService.convertTo12Hour(v.time),
 
-      'نوع المخالفة': v.violationCategory,
+      // 'نوع المخالفة': v.violationCategory,
       'المكان': v.location,
       'اسم العضو': v.memberName,
       'رقم العضوية': v.membershipNo,
@@ -156,7 +156,6 @@ export class ShowGeneralViolationComponent implements OnInit {
       { wch: 10 }, // التاريخ
       { wch: 8 }, // اليوم
       { wch: 6 }, // التوقيت
-      { wch: 8 }, // نوع المخالفة
       { wch: 15 }, // المكان
       { wch: 30 }, // اسم العضو
       { wch: 8 }, // رقم العضوية
