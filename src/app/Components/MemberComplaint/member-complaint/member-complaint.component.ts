@@ -74,8 +74,8 @@ export class MemberComplaintComponent {
         }
       }
 
-      // اختيار النص النهائي أو المؤقت لعرضه فورياً
-      const liveText = finalTranscript || interimTranscript;
+      // دمج الكلام النهائي والمؤقت لعرضه لحظياً
+      const liveText = (finalTranscript + interimTranscript).trim();
 
       if (this.activeField === 'control') {
         const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.controlOptions);
@@ -96,25 +96,22 @@ export class MemberComplaintComponent {
       // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
       if (inputElement) {
+        inputElement.style.color = ''; // رجع اللون الطبيعي لو فيه كلام
         inputElement.classList.add('glow-update');
         setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
       }
     };
 
-
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // لو الحقل فاضي → حط "لا توجد" باللون الذهبي
       const value = this.formData[this.activeField];
       if (!value || value.trim() === '') {
         this.formData[this.activeField] = 'لا توجد';
-        setTimeout(() => {
-          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
-          if (el) {
-            el.style.color = '#FFD700'; // لون شعار وادي دجلة
-          }
-        });
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) {
+          el.style.color = '#FFD700'; // لون وادي دجلة فوراً
+        }
       }
 
       // استمرار التسجيل لو كنترول لسه مضغوط
@@ -139,6 +136,7 @@ export class MemberComplaintComponent {
         }, 100);
       }
     };
+
   }
 
   onDateChange() {

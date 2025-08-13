@@ -69,42 +69,48 @@ export class PlaceViolationComponent {
       this.onDateChange();
     }
 
+    // ✅ لازم قبل أي حاجة نخلي الكلام يظهر كلمة كلمة
+    this.recognition.interimResults = true;
+
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
+      let finalTranscript = '';
+      let interimTranscript = '';
+
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         let currentTranscript = event.results[i][0].transcript;
+        currentTranscript = this._SharedService.cleanSpeechText(currentTranscript.trim());
+
         if (event.results[i].isFinal) {
-          transcript += currentTranscript;
+          finalTranscript += currentTranscript + ' ';
         } else {
-          transcript += currentTranscript; // عرض لايف للكلام
+          interimTranscript += currentTranscript + ' '; // 👈 بيظهر أثناء الكلام
         }
       }
 
-      transcript = this._SharedService.cleanSpeechText(transcript.trim());
+      // 📝 تحديث الحقل فورًا
+      const liveText = finalTranscript || interimTranscript;
 
-      if (transcript) {
-        if (this.activeField === 'control') {
-          const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-          this.formData['control'] = matched || transcript;
-        } else if (this.activeField === 'supervisor') {
-          const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-          this.formData['supervisor'] = matched || transcript;
-        } else if (this.activeField === 'location') {
-          const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-          this.formData['location'] = matched || transcript;
-        } else {
-          this.formData[this.activeField] = transcript;
-        }
+      if (this.activeField === 'control') {
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || liveText;
+      } else if (this.activeField === 'supervisor') {
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || liveText;
+      } else if (this.activeField === 'location') {
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || liveText;
+      } else {
+        this.formData[this.activeField] = liveText;
       }
 
-      // ✨ Animation عند التحديث
-      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-      if (inputElement) {
-        inputElement.classList.add('glow-update');
-        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+      // ✨ إزالة لون وادي دجلة إذا المستخدم بدأ يتكلم بعد "لا توجد"
+      const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+      if (el) {
+        el.style.color = ''; // بيرجع اللون الافتراضي
+        el.classList.add('glow-update');
+        setTimeout(() => el.classList.remove('glow-update'), 1500);
       }
     };
-
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
@@ -115,7 +121,7 @@ export class PlaceViolationComponent {
         setTimeout(() => {
           const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
           if (el) {
-            el.style.color = '#FFD700'; // 🟡 لون وادي دجلة
+            el.style.color = '#FFD700'; // 🟡 لون شعار وادي دجلة
           }
         });
       }
@@ -142,6 +148,7 @@ export class PlaceViolationComponent {
         }, 100);
       }
     };
+
 
 
   }

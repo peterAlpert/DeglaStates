@@ -69,46 +69,47 @@ export class AddFoodVioComponent {
       let interimTranscript = '';
       let finalTranscript = '';
 
-      for (let i = 0; i < event.results.length; ++i) {
-        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcriptPart = this._SharedService.cleanSpeechText(event.results[i][0].transcript);
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
+          finalTranscript += transcriptPart + ' ';
         } else {
-          interimTranscript += transcript + ' ';
+          interimTranscript += transcriptPart + ' ';
         }
       }
 
-      // 📌 دمج النص النهائي مع المؤقت لعرضه أثناء الكلام
-      let displayText = (finalTranscript + interimTranscript).trim();
+      // عرض مؤقت أثناء الكلام
+      let liveText = (finalTranscript + interimTranscript).trim();
 
-      // 🟡 لو الحقل فارغ بعد التنظيف → لا تعرض حاجة مؤقتاً
-      if (!displayText && !finalTranscript) displayText = '';
-
-      // معالجة خاصة لكل حقل
+      // تخصيص المعالجة لكل حقل
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.controlOptions);
-        this.formData['control'] = matched || displayText;
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || liveText;
       } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || displayText;
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || liveText;
       } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.locationOptions);
-        this.formData['location'] = matched || displayText;
-      } else if (this.activeField === 'membershipNo' || this.activeField === 'guestsMembershipNo') {
-        const cleaned = displayText.replace(/\s+/g, '').replace(/\D/g, '');
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || liveText;
+      } else if (['membershipNo', 'guestsMembershipNo'].includes(this.activeField)) {
+        const cleaned = liveText.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData[this.activeField] = cleaned;
       } else {
-        this.formData[this.activeField] = displayText;
+        this.formData[this.activeField] = liveText;
       }
 
-      // ✨ Animation عند التحديث
+      // ✨ أنيميشن أثناء التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
       if (inputElement) {
         inputElement.classList.add('glow-update');
         setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+
+        // إزالة اللون الذهبي لو بدأ يظهر نص
+        if (liveText && inputElement.style.color === '#FFD700') {
+          inputElement.style.color = '';
+        }
       }
     };
-
 
     this.recognition.onend = () => {
       this.isRecognizing = false;
@@ -116,31 +117,26 @@ export class AddFoodVioComponent {
       const currentValue = (this.formData[this.activeField] || '').trim();
       if (!currentValue) {
         this.formData[this.activeField] = 'لا توجد';
-
-        // تلوين "لا توجد" بلون وادي دجلة
-        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-        if (inputElement) {
-          (inputElement as HTMLInputElement).style.color = '#FFD700';
-          setTimeout(() => {
-            (inputElement as HTMLInputElement).style.color = ''; // يرجع اللون الطبيعي بعد ثانيتين
-          }, 2000);
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) {
+          el.style.color = '#FFD700'; // لون وادي دجلة
         }
       }
 
-      // لو الكنترول لسه مضغوط → استمرار التسجيل
+      // استمرار التسجيل لو الكنترول مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
-      // الانتقال للحقل التالي
+      // انتقال للحقل التالي
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextInput = this.inputs.toArray()[currentIndex + 1];
       this.activeField = '';
-
       if (nextInput) nextInput.nativeElement.focus();
     };
+
   }
 
   startRecognition(field: string) {

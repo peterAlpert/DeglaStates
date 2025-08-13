@@ -69,6 +69,7 @@ export class GeneralViolationFormComponent {
       let interimTranscript = '';
       let finalTranscript = '';
 
+      // 🔹 هنا بنبدأ من resultIndex عشان ناخد الكلام الجديد فقط
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         const transcriptPart = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
@@ -78,6 +79,7 @@ export class GeneralViolationFormComponent {
         }
       }
 
+      // 🟡 أثناء الكلام (Interim) هيظهر في الوقت الحقيقي
       let transcript = (finalTranscript || interimTranscript).trim();
       transcript = this._SharedService.cleanSpeechText(transcript);
 
@@ -100,7 +102,7 @@ export class GeneralViolationFormComponent {
         this.formData[this.activeField] = transcript;
       }
 
-      // ✨ Animation عند التحديث
+      // ✨ Animation عند أي تحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
       if (inputElement) {
         inputElement.classList.add('glow-update');
@@ -115,12 +117,14 @@ export class GeneralViolationFormComponent {
       const value = this.formData[this.activeField];
       if (!value || value.trim() === '') {
         this.formData[this.activeField] = 'لا توجد';
-        setTimeout(() => {
-          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
-          if (el) {
-            el.style.color = '#FFD700'; // لون شعار وادي دجلة
-          }
-        });
+
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) {
+          el.style.color = '#FFD700'; // لون وادي دجلة
+          setTimeout(() => {
+            el.style.color = ''; // يرجع اللون العادي
+          }, 1500);
+        }
       }
 
       // 🔄 استمرار التسجيل لو كنترول لسه مضغوط
@@ -137,6 +141,7 @@ export class GeneralViolationFormComponent {
 
       if (nextInput) nextInput.nativeElement.focus();
     };
+
   }
 
   startRecognition(field: string) {

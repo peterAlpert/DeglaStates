@@ -75,11 +75,11 @@ export class InjuryComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let finalTranscript = '';
       let interimTranscript = '';
+      let finalTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript);
+        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
 
         if (event.results[i].isFinal) {
           finalTranscript += transcript + ' ';
@@ -88,23 +88,23 @@ export class InjuryComponent {
         }
       }
 
-      // 🟡 النص يظهر كلمة كلمة أثناء الكلام
-      let currentText = (finalTranscript + interimTranscript).trim();
+      // النص يظهر كلمة كلمة أثناء الكلام
+      const liveText = (finalTranscript + interimTranscript).trim();
 
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.controlOptions);
-        this.formData['control'] = matched || currentText;
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || liveText;
       } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || currentText;
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || liveText;
       } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.locationOptions);
-        this.formData['location'] = matched || currentText;
+        const matched = this._SharedService.findClosestMatch(liveText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || liveText;
       } else if (this.activeField === 'membershipNo') {
-        const cleaned = currentText.replace(/\s+/g, '').replace(/\D/g, '');
+        const cleaned = liveText.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['membershipNo'] = cleaned;
       } else {
-        this.formData[this.activeField] = currentText;
+        this.formData[this.activeField] = liveText;
       }
 
       // ✨ Animation عند التحديث
@@ -118,26 +118,26 @@ export class InjuryComponent {
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // 🟡 لو الحقل فاضي → حط "لا توجد" بلون وادي دجلة
+      // لو الحقل فاضي → حط "لا توجد" بلون وادي دجلة
       const value = this.formData[this.activeField];
       if (!value || value.trim() === '') {
         this.formData[this.activeField] = 'لا توجد';
         setTimeout(() => {
           const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
           if (el) {
-            el.style.color = '#FFD700'; // ذهبي شعار وادي دجلة
+            el.style.color = '#FFD700'; // لون وادي دجلة
           }
         });
       }
 
-      // 🔄 استمرار التسجيل لو كنترول لسه مضغوط
+      // استمرار التسجيل لو كنترول لسه مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
-      // ⏭ الانتقال للحقل التالي
+      // الانتقال للحقل التالي
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextField = this.fields[currentIndex + 1];
       this.activeField = '';
@@ -152,6 +152,7 @@ export class InjuryComponent {
         }, 100);
       }
     };
+
   }
 
   startRecognition(fieldKey: string) {

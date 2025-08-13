@@ -56,57 +56,69 @@ export class AddLostItemComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let interimTranscript = '';
       let finalTranscript = '';
+      let interimTranscript = '';
 
-      for (let i = 0; i < event.results.length; ++i) {
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = this._SharedService.cleanSpeechText(
+          event.results[i][0].transcript.trim()
+        );
+
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+          finalTranscript += transcript + ' ';
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          interimTranscript += transcript + ' ';
         }
       }
 
-      let currentText = finalTranscript || interimTranscript;
+      const currentText = finalTranscript || interimTranscript;
 
-      // 🟡 معالجة خاصة لبعض الحقول
-      if (this.activeField === 'SecurityOfficer') {
-        this.formData.SecurityOfficer = this._SharedService.findClosestMatch(currentText, this._SharedService.securityOfficers);
-      } else if (this.activeField === 'ItemNumber') {
-        const cleaned = currentText.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['ItemNumber'] = cleaned;
-      } else {
-        this.formData[this.activeField] = currentText;
+      // تحديث مباشر أثناء الكلام (حتى لو مش نهائي)
+      if (this.activeField) {
+        if (this.activeField === 'control') {
+          const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.controlOptions);
+          this.formData['control'] = matched || currentText;
+        } else if (this.activeField === 'supervisor') {
+          const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.supervisorOptions);
+          this.formData['supervisor'] = matched || currentText;
+        } else if (this.activeField === 'location') {
+          const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.locationOptions);
+          this.formData['location'] = matched || currentText;
+        } else {
+          this.formData[this.activeField] = currentText;
+        }
+
+        // لو المستخدم بدأ يتكلم بعد "لا توجد" رجع اللون الطبيعي
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) el.style.color = '';
       }
 
-      // ✨ تأثير الإضاءة
-      const input = document.getElementsByName(this.activeField)[0] as HTMLElement;
-      input?.classList.add('glow-update');
-      setTimeout(() => input?.classList.remove('glow-update'), 1500);
+      // تأثير الإضاءة
+      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+      if (inputElement) {
+        inputElement.classList.add('glow-update');
+        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+      }
     };
-
 
     this.recognition.onend = () => {
-      setTimeout(() => {
-        this.isRecognizing = false;
+      this.isRecognizing = false;
 
-        // ✅ لو الحقل فاضي اكتب "لا توجد" بلون شعار وادي دجلة
-        const value = this.formData[this.activeField];
-        if (!value || value.trim() === '') {
-          this.formData[this.activeField] = 'لا توجد';
-          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
-          if (el) {
-            el.style.color = '#FFD700'; // 🎨 لون شعار وادي دجلة
-          }
-        }
+      const value = this.formData[this.activeField];
+      if (!value || value.trim() === '') {
+        this.formData[this.activeField] = 'لا توجد';
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) el.style.color = '#FFD700'; // 🟡 لون وادي دجلة
+      }
 
-        // ⏭ الانتقال للحقل التالي
-        const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
-        const nextInput = this.inputs.toArray()[currentIndex + 1];
-        if (nextInput) nextInput.nativeElement.focus();
-        this.activeField = '';
-      }, 50);
+      // الانتقال للحقل التالي
+      const index = this.fields.findIndex(f => f.key === this.activeField);
+      const next = this.inputs.toArray()[index + 1];
+      this.activeField = '';
+      if (next) next.nativeElement.focus();
     };
+
+
 
   }
 

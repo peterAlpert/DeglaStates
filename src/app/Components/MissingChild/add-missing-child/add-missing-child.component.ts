@@ -70,37 +70,37 @@ export class MissingChildComponent {
       let finalTranscript = '';
       let interimTranscript = '';
 
-      for (let i = 0; i < event.results.length; ++i) {
-        const transcript = event.results[i][0].transcript;
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript);
+
         if (event.results[i].isFinal) {
-          finalTranscript += transcript;
+          finalTranscript += transcript + ' ';
         } else {
-          interimTranscript += transcript;
+          interimTranscript += transcript + ' ';
         }
       }
 
-      let cleanedText = this._SharedService.cleanSpeechText(
-        (finalTranscript || interimTranscript).trim()
-      );
+      // 🟡 تحديث النص لحظيًا أثناء الكلام
+      let currentText = (finalTranscript + interimTranscript).trim();
 
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.controlOptions);
-        this.formData['control'] = matched || cleanedText;
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || currentText;
       }
       else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || cleanedText;
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || currentText;
       }
       else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.locationOptions);
-        this.formData['location'] = matched || cleanedText;
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || currentText;
       }
       else if (this.activeField === 'membershipNo') {
-        const cleaned = cleanedText.replace(/\s+/g, '').replace(/\D/g, '');
+        const cleaned = currentText.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['membershipNo'] = cleaned;
       }
       else {
-        this.formData[this.activeField] = cleanedText;
+        this.formData[this.activeField] = currentText;
       }
 
       // ✨ Animation عند التحديث
@@ -111,32 +111,30 @@ export class MissingChildComponent {
       }
     };
 
-
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // 🟡 لو مفيش نص اتسجل - نحط "لا توجد" بلون وادي دجلة
-      if (this.activeField && !this.formData[this.activeField]?.trim()) {
+      // 🟡 لو الحقل فاضي → "لا توجد" بلون وادي دجلة
+      if (this.activeField && (!this.formData[this.activeField] || this.formData[this.activeField].trim() === '')) {
         this.formData[this.activeField] = 'لا توجد';
 
-        // تغيير اللون في الانبوت
-        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-        if (inputElement) {
-          inputElement.style.color = '#FFD700'; // لون وادي دجلة
+        const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (el) {
+          el.style.color = '#FFD700'; // ذهبي شعار وادي دجلة
           setTimeout(() => {
-            inputElement.style.color = ''; // يرجع للون العادي بعد 1.5 ثانية
+            el.style.color = ''; // يرجع اللون العادي بعد 1.5 ثانية
           }, 1500);
         }
       }
 
-      // تسجيل مستمر لو كنترول لسه مضغوط
+      // 🔄 تسجيل مستمر لو كنترول لسه مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
-      // انتقال للفيلد اللي بعده
+      // ⏭ الانتقال للفيلد اللي بعده
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextField = this.fields[currentIndex + 1];
 
@@ -144,7 +142,6 @@ export class MissingChildComponent {
         setTimeout(() => {
           const inputElements = this.inputs.toArray();
           const nextInput = inputElements[currentIndex + 1];
-
           if (nextInput) {
             nextInput.nativeElement.focus();
           }
@@ -153,6 +150,7 @@ export class MissingChildComponent {
 
       this.activeField = '';
     };
+
 
   }
 
