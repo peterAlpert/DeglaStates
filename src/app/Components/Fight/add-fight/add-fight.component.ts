@@ -79,52 +79,78 @@ export class AddFightComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = 0; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
+
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
       }
 
-      transcript = _SharedService.cleanSpeechText(transcript.trim());
-
-      // 🟡 لو الحقل هو control - حاول تطابقه
-      if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-        this.formData['control'] = matched || transcript;
-      } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || transcript;
-
-      } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-        this.formData['location'] = matched || transcript;
-
-      } else if (this.activeField === 'firstPersonMembership') {
-        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['firstPersonMembership'] = cleaned;
-      } else if (this.activeField === 'firstPersonGuestsMembership') {
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['firstPersonGuestsMembership'] = cleaned;
-      } else if (this.activeField === 'secondPersonMembership') {
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['secondPersonMembership'] = cleaned;
-      }
-      else if (this.activeField === 'secondPersonGuestsMembership') {
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['secondPersonGuestsMembership'] = cleaned;
-      }
-      else {
-        this.formData[this.activeField] = transcript;
+      // 🟢 عرض النص المؤقت أثناء الكلام
+      if (interimTranscript) {
+        this.formData[this.activeField] = interimTranscript;
+        this.cdr.detectChanges();
+        return; // نعرض الكلام المؤقت فقط بدون عمل أنيميشن
       }
 
+      // 🟢 لو فيه كلام نهائي
+      if (finalTranscript) {
+        let processedText = finalTranscript;
 
-      // ✨ Animation عند التحديث
-      const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-      if (inputElement) {
-        inputElement.classList.add('glow-update');
-        setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+        // 🟡 نفس المعالجة اللي كانت عندك
+        if (this.activeField === 'control') {
+          const matched = this._SharedService.findClosestMatch(processedText, this._SharedService.controlOptions);
+          this.formData['control'] = matched || processedText;
+        } else if (this.activeField === 'supervisor') {
+          const matched = this._SharedService.findClosestMatch(processedText, this._SharedService.supervisorOptions);
+          this.formData['supervisor'] = matched || processedText;
+        } else if (this.activeField === 'location') {
+          const matched = this._SharedService.findClosestMatch(processedText, this._SharedService.locationOptions);
+          this.formData['location'] = matched || processedText;
+        } else if (this.activeField === 'firstPersonMembership') {
+          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
+          this.formData['firstPersonMembership'] = cleaned;
+        } else if (this.activeField === 'firstPersonGuestsMembership') {
+          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
+          this.formData['firstPersonGuestsMembership'] = cleaned;
+        } else if (this.activeField === 'secondPersonMembership') {
+          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
+          this.formData['secondPersonMembership'] = cleaned;
+        } else if (this.activeField === 'secondPersonGuestsMembership') {
+          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
+          this.formData['secondPersonGuestsMembership'] = cleaned;
+        } else {
+          this.formData[this.activeField] = processedText;
+        }
+
+        // ✨ Animation عند التحديث النهائي
+        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (inputElement) {
+          inputElement.classList.add('glow-update');
+          setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+        }
       }
+
+      // 🔴 لو مفيش أي كلام في الآخر
+      if (!interimTranscript && !finalTranscript) {
+        this.formData[this.activeField] = 'لا يوجد';
+
+        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (inputElement) {
+          inputElement.classList.add('glow-update');
+          setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+        }
+      }
+
+      this.cdr.detectChanges();
     };
+
 
     this.recognition.onend = () => {
       // 🟢 لو مفيش أي كلام اتقال في الحقل النشط
