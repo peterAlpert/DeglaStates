@@ -65,6 +65,10 @@ export class AddLostItemComponent {
 
       if (this.activeField === 'SecurityOfficer') {
         this.formData.SecurityOfficer = this._SharedService.findClosestMatch(finalTranscript, this._SharedService.securityOfficers);
+      } else if (this.activeField === 'ItemNumber') {
+        // 🟡 لو الحقل هو رقم البند - شيل المسافات وأي رموز مش أرقام
+        const cleaned = finalTranscript.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['ItemNumber'] = cleaned;
       }
       else {
         this.formData[this.activeField] = finalTranscript;
