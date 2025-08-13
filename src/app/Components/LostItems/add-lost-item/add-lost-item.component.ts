@@ -76,11 +76,21 @@ export class AddLostItemComponent {
     };
 
     this.recognition.onend = () => {
-      this.isRecognizing = false;
-      const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
-      const nextInput = this.inputs.toArray()[currentIndex + 1];
-      if (nextInput) nextInput.nativeElement.focus();
-      this.activeField = '';
+      //add setTimeOut
+      setTimeout(() => {
+        this.isRecognizing = false;
+        const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
+        const nextInput = this.inputs.toArray()[currentIndex + 1];
+        if (nextInput) nextInput.nativeElement.focus();
+        this.activeField = '';
+      }, 50);
+
+
+      // this.isRecognizing = false;
+      // const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
+      // const nextInput = this.inputs.toArray()[currentIndex + 1];
+      // if (nextInput) nextInput.nativeElement.focus();
+      // this.activeField = '';
     };
   }
 
@@ -93,6 +103,15 @@ export class AddLostItemComponent {
   }
 
   startRecognition(field: string) {
+    //soultion 1 
+    if (this.isRecognizing) return;
+
+    //soultion 2
+    try {
+      this.recognition.abort(); // لو شغال يوقفه
+    } catch { }
+
+
     this.activeField = field;
     this.isRecognizing = true;
     this._SharedService.playBeep('start')
