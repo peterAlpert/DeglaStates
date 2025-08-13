@@ -127,6 +127,18 @@ export class AddFightComponent {
     };
 
     this.recognition.onend = () => {
+      // 🟢 لو مفيش أي كلام اتقال في الحقل النشط
+      if (!this.formData[this.activeField] || this.formData[this.activeField].trim() === '') {
+        this.formData[this.activeField] = 'لا يوجد';
+
+        // ✨ Animation عند التحديث التلقائي
+        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (inputElement) {
+          inputElement.classList.add('glow-update');
+          setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+        }
+      }
+
       this.isRecognizing = false;
 
       // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
@@ -141,7 +153,6 @@ export class AddFightComponent {
       this.activeField = '';
 
       const nextInput = this.inputs.toArray()[currentIndex + 1];
-
       if (nextInput) {
         setTimeout(() => {
           nextInput.nativeElement.focus();
@@ -151,6 +162,7 @@ export class AddFightComponent {
 
       this.activeField = '';
     };
+
 
   }
 
