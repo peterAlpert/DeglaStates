@@ -66,37 +66,40 @@ export class AddFoodVioComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
+      let interimTranscript = '';
+      let finalTranscript = '';
+
       for (let i = 0; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
+        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript + ' ';
+        }
       }
 
-      transcript = _SharedService.cleanSpeechText(transcript.trim());
+      // 📌 دمج النص النهائي مع المؤقت لعرضه أثناء الكلام
+      let displayText = (finalTranscript + interimTranscript).trim();
 
-      // 🟡 لو الحقل هو control - حاول تطابقه
+      // 🟡 لو الحقل فارغ بعد التنظيف → لا تعرض حاجة مؤقتاً
+      if (!displayText && !finalTranscript) displayText = '';
+
+      // معالجة خاصة لكل حقل
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-        this.formData['control'] = matched || transcript;
+        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || displayText;
       } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || transcript;
-
+        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || displayText;
       } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-        this.formData['location'] = matched || transcript;
-
-      } else if (this.activeField === 'membershipNo') {
-        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['membershipNo'] = cleaned;
-      } else if (this.activeField === 'guestsMembershipNo') {
-        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['guestsMembershipNo'] = cleaned;
+        const matched = this._SharedService.findClosestMatch(displayText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || displayText;
+      } else if (this.activeField === 'membershipNo' || this.activeField === 'guestsMembershipNo') {
+        const cleaned = displayText.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData[this.activeField] = cleaned;
       } else {
-        this.formData[this.activeField] = transcript;
+        this.formData[this.activeField] = displayText;
       }
-
 
       // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
@@ -106,23 +109,37 @@ export class AddFoodVioComponent {
       }
     };
 
+
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      const currentValue = (this.formData[this.activeField] || '').trim();
+      if (!currentValue) {
+        this.formData[this.activeField] = 'لا توجد';
+
+        // تلوين "لا توجد" بلون وادي دجلة
+        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (inputElement) {
+          (inputElement as HTMLInputElement).style.color = '#FFD700';
+          setTimeout(() => {
+            (inputElement as HTMLInputElement).style.color = ''; // يرجع اللون الطبيعي بعد ثانيتين
+          }, 2000);
+        }
+      }
+
+      // لو الكنترول لسه مضغوط → استمرار التسجيل
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
+      // الانتقال للحقل التالي
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
       const nextInput = this.inputs.toArray()[currentIndex + 1];
       this.activeField = '';
 
       if (nextInput) nextInput.nativeElement.focus();
-
-      this.activeField = '';
     };
   }
 

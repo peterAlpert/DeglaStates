@@ -67,35 +67,41 @@ export class MissingChildComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
+      let finalTranscript = '';
+      let interimTranscript = '';
+
       for (let i = 0; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
       }
 
-      transcript = _SharedService.cleanSpeechText(transcript.trim());
-
-
+      let cleanedText = this._SharedService.cleanSpeechText(
+        (finalTranscript || interimTranscript).trim()
+      );
 
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-        this.formData['control'] = matched || transcript;
-
-      } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || transcript;
-
-      } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-        this.formData['location'] = matched || transcript;
-
-      } else if (this.activeField === 'membershipNo') {
-        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
-        this.formData['membershipNo'] = cleaned;
-      } else {
-        this.formData[this.activeField] = transcript;
+        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || cleanedText;
       }
-
+      else if (this.activeField === 'supervisor') {
+        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || cleanedText;
+      }
+      else if (this.activeField === 'location') {
+        const matched = this._SharedService.findClosestMatch(cleanedText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || cleanedText;
+      }
+      else if (this.activeField === 'membershipNo') {
+        const cleaned = cleanedText.replace(/\s+/g, '').replace(/\D/g, '');
+        this.formData['membershipNo'] = cleaned;
+      }
+      else {
+        this.formData[this.activeField] = cleanedText;
+      }
 
       // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
@@ -105,16 +111,30 @@ export class MissingChildComponent {
       }
     };
 
+
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      // 🟡 لو مفيش نص اتسجل - نحط "لا توجد" بلون وادي دجلة
+      if (this.activeField && !this.formData[this.activeField]?.trim()) {
+        this.formData[this.activeField] = 'لا توجد';
+
+        // تغيير اللون في الانبوت
+        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
+        if (inputElement) {
+          inputElement.style.color = '#FFD700'; // لون وادي دجلة
+          setTimeout(() => {
+            inputElement.style.color = ''; // يرجع للون العادي بعد 1.5 ثانية
+          }, 1500);
+        }
+      }
+
+      // تسجيل مستمر لو كنترول لسه مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
-
 
       // انتقال للفيلد اللي بعده
       const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
@@ -133,6 +153,7 @@ export class MissingChildComponent {
 
       this.activeField = '';
     };
+
   }
 
   startRecognition(field: string) {

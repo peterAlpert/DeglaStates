@@ -61,27 +61,33 @@ export class AddEmployeeViolationComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = 0; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
+
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript + ' ';
+        }
       }
 
-      transcript = _SharedService.cleanSpeechText(transcript.trim());
+      const currentText = finalTranscript || interimTranscript;
 
       // 🟡 لو الحقل هو control - حاول تطابقه
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-        this.formData['control'] = matched || transcript;
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || currentText;
       } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || transcript;
-
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || currentText;
       } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-        this.formData['location'] = matched || transcript;
-
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || currentText;
       } else {
-        this.formData[this.activeField] = transcript;
+        this.formData[this.activeField] = currentText;
       }
 
       // ✨ Animation عند التحديث
@@ -96,6 +102,18 @@ export class AddEmployeeViolationComponent {
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
+      // 🔴 لو مفيش حاجة اتقالت
+      const value = this.formData[this.activeField];
+      if (!value || value.trim() === '') {
+        this.formData[this.activeField] = 'لا توجد';
+        setTimeout(() => {
+          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+          if (el) {
+            el.style.color = '#FFD700'; // لون شعار وادي دجلة
+          }
+        });
+      }
+
       // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
@@ -103,12 +121,12 @@ export class AddEmployeeViolationComponent {
         return;
       }
 
+      // ⏭ الانتقال للحقل التالي
       const index = this.fields.findIndex(f => f.key === this.activeField);
       const next = this.inputs.toArray()[index + 1];
       this.activeField = '';
 
       if (next) next.nativeElement.focus();
-      this.activeField = '';
     };
   }
 

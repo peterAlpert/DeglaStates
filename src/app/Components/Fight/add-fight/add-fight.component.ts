@@ -86,24 +86,23 @@ export class AddFightComponent {
         let transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript.trim());
 
         if (event.results[i].isFinal) {
-          finalTranscript += transcript;
+          finalTranscript += transcript + ' ';
         } else {
-          interimTranscript += transcript;
+          interimTranscript += transcript + ' ';
         }
       }
 
       // 🟢 عرض النص المؤقت أثناء الكلام
       if (interimTranscript) {
-        this.formData[this.activeField] = interimTranscript;
+        this.formData[this.activeField] = interimTranscript.trim();
         this.cdr.detectChanges();
-        return; // نعرض الكلام المؤقت فقط بدون عمل أنيميشن
+        return; // عرض مؤقت بدون أنيميشن
       }
 
-      // 🟢 لو فيه كلام نهائي
+      // 🟢 لو فيه نص نهائي
       if (finalTranscript) {
-        let processedText = finalTranscript;
+        let processedText = finalTranscript.trim();
 
-        // 🟡 نفس المعالجة اللي كانت عندك
         if (this.activeField === 'control') {
           const matched = this._SharedService.findClosestMatch(processedText, this._SharedService.controlOptions);
           this.formData['control'] = matched || processedText;
@@ -113,34 +112,19 @@ export class AddFightComponent {
         } else if (this.activeField === 'location') {
           const matched = this._SharedService.findClosestMatch(processedText, this._SharedService.locationOptions);
           this.formData['location'] = matched || processedText;
-        } else if (this.activeField === 'firstPersonMembership') {
+        } else if (
+          this.activeField === 'firstPersonMembership' ||
+          this.activeField === 'firstPersonGuestsMembership' ||
+          this.activeField === 'secondPersonMembership' ||
+          this.activeField === 'secondPersonGuestsMembership'
+        ) {
           const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
-          this.formData['firstPersonMembership'] = cleaned;
-        } else if (this.activeField === 'firstPersonGuestsMembership') {
-          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
-          this.formData['firstPersonGuestsMembership'] = cleaned;
-        } else if (this.activeField === 'secondPersonMembership') {
-          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
-          this.formData['secondPersonMembership'] = cleaned;
-        } else if (this.activeField === 'secondPersonGuestsMembership') {
-          const cleaned = processedText.replace(/\s+/g, '').replace(/\D/g, '');
-          this.formData['secondPersonGuestsMembership'] = cleaned;
+          this.formData[this.activeField] = cleaned;
         } else {
           this.formData[this.activeField] = processedText;
         }
 
-        // ✨ Animation عند التحديث النهائي
-        const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
-        if (inputElement) {
-          inputElement.classList.add('glow-update');
-          setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
-        }
-      }
-
-      // 🔴 لو مفيش أي كلام في الآخر
-      if (!interimTranscript && !finalTranscript) {
-        this.formData[this.activeField] = 'لا يوجد';
-
+        // ✨ أنيميشن عند التحديث النهائي
         const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
         if (inputElement) {
           inputElement.classList.add('glow-update');
@@ -153,27 +137,29 @@ export class AddFightComponent {
 
 
     this.recognition.onend = () => {
-      // 🟢 لو مفيش أي كلام اتقال في الحقل النشط
-      if (!this.formData[this.activeField] || this.formData[this.activeField].trim() === '') {
-        this.formData[this.activeField] = 'لا يوجد';
+      this.isRecognizing = false;
 
-        // ✨ Animation عند التحديث التلقائي
+      // 🟡 لو الحقل فاضي → ضع "لا توجد" باللون الذهبي
+      const currentValue = (this.formData[this.activeField] || '').trim();
+      if (!currentValue) {
+        this.formData[this.activeField] = 'لا توجد';
         const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
         if (inputElement) {
-          inputElement.classList.add('glow-update');
-          setTimeout(() => inputElement.classList.remove('glow-update'), 1500);
+          (inputElement as HTMLInputElement).style.color = '#FFD700'; // لون وادي دجلة
+          setTimeout(() => {
+            (inputElement as HTMLInputElement).style.color = '';
+          }, 2000);
         }
       }
 
-      this.isRecognizing = false;
-
-      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      // استمرار التسجيل لو الكنترول لسه مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
+      // الانتقال للحقل التالي
       const focusableFields = this.fields.filter(f => !f.readonly && f.key !== 'date' && f.key !== 'day');
       const currentIndex = focusableFields.findIndex(f => f.key === this.activeField);
       this.activeField = '';
@@ -182,11 +168,9 @@ export class AddFightComponent {
       if (nextInput) {
         setTimeout(() => {
           nextInput.nativeElement.focus();
-          console.log('✅ Focused on:', focusableFields[currentIndex + 1].key);
+          console.log('✅ Focused on:', focusableFields[currentIndex + 1]?.key);
         }, 300);
       }
-
-      this.activeField = '';
     };
 
 

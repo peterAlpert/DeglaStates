@@ -56,46 +56,58 @@ export class AddLostItemComponent {
     }
 
     this.recognition.onresult = (event: any) => {
+      let interimTranscript = '';
       let finalTranscript = '';
+
       for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
         }
       }
 
+      let currentText = finalTranscript || interimTranscript;
+
+      // 🟡 معالجة خاصة لبعض الحقول
       if (this.activeField === 'SecurityOfficer') {
-        this.formData.SecurityOfficer = this._SharedService.findClosestMatch(finalTranscript, this._SharedService.securityOfficers);
+        this.formData.SecurityOfficer = this._SharedService.findClosestMatch(currentText, this._SharedService.securityOfficers);
       } else if (this.activeField === 'ItemNumber') {
-        // 🟡 لو الحقل هو رقم البند - شيل المسافات وأي رموز مش أرقام
-        const cleaned = finalTranscript.replace(/\s+/g, '').replace(/\D/g, '');
+        const cleaned = currentText.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['ItemNumber'] = cleaned;
-      }
-      else {
-        this.formData[this.activeField] = finalTranscript;
+      } else {
+        this.formData[this.activeField] = currentText;
       }
 
+      // ✨ تأثير الإضاءة
       const input = document.getElementsByName(this.activeField)[0] as HTMLElement;
       input?.classList.add('glow-update');
       setTimeout(() => input?.classList.remove('glow-update'), 1500);
     };
 
+
     this.recognition.onend = () => {
-      //add setTimeOut
       setTimeout(() => {
         this.isRecognizing = false;
+
+        // ✅ لو الحقل فاضي اكتب "لا توجد" بلون شعار وادي دجلة
+        const value = this.formData[this.activeField];
+        if (!value || value.trim() === '') {
+          this.formData[this.activeField] = 'لا توجد';
+          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+          if (el) {
+            el.style.color = '#FFD700'; // 🎨 لون شعار وادي دجلة
+          }
+        }
+
+        // ⏭ الانتقال للحقل التالي
         const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
         const nextInput = this.inputs.toArray()[currentIndex + 1];
         if (nextInput) nextInput.nativeElement.focus();
         this.activeField = '';
       }, 50);
-
-
-      // this.isRecognizing = false;
-      // const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
-      // const nextInput = this.inputs.toArray()[currentIndex + 1];
-      // if (nextInput) nextInput.nativeElement.focus();
-      // this.activeField = '';
     };
+
   }
 
   onDateChange() {

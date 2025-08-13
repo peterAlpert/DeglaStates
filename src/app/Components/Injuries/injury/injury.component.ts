@@ -75,33 +75,37 @@ export class InjuryComponent {
     }
 
     this.recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = 0; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = this._SharedService.cleanSpeechText(event.results[i][0].transcript);
+
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript + ' ';
+        }
       }
 
-      transcript = _SharedService.cleanSpeechText(transcript.trim());
+      // 🟡 النص يظهر كلمة كلمة أثناء الكلام
+      let currentText = (finalTranscript + interimTranscript).trim();
 
-      // 🟡 لو الحقل هو control - حاول تطابقه
       if (this.activeField === 'control') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.controlOptions);
-        this.formData['control'] = matched || transcript;
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.controlOptions);
+        this.formData['control'] = matched || currentText;
       } else if (this.activeField === 'supervisor') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.supervisorOptions);
-        this.formData['supervisor'] = matched || transcript;
-
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.supervisorOptions);
+        this.formData['supervisor'] = matched || currentText;
       } else if (this.activeField === 'location') {
-        const matched = this._SharedService.findClosestMatch(transcript, this._SharedService.locationOptions);
-        this.formData['location'] = matched || transcript;
-
+        const matched = this._SharedService.findClosestMatch(currentText, this._SharedService.locationOptions);
+        this.formData['location'] = matched || currentText;
       } else if (this.activeField === 'membershipNo') {
-        // 🟡 لو الحقل هو رقم العضوية - شيل المسافات وأي رموز مش أرقام
-        const cleaned = transcript.replace(/\s+/g, '').replace(/\D/g, '');
+        const cleaned = currentText.replace(/\s+/g, '').replace(/\D/g, '');
         this.formData['membershipNo'] = cleaned;
       } else {
-        this.formData[this.activeField] = transcript;
+        this.formData[this.activeField] = currentText;
       }
-
 
       // ✨ Animation عند التحديث
       const inputElement = document.getElementsByName(this.activeField)[0] as HTMLElement;
@@ -114,19 +118,39 @@ export class InjuryComponent {
     this.recognition.onend = () => {
       this.isRecognizing = false;
 
-      // ✨ تسجيل مستمر لو المستخدم لسه ضغط كنترول
+      // 🟡 لو الحقل فاضي → حط "لا توجد" بلون وادي دجلة
+      const value = this.formData[this.activeField];
+      if (!value || value.trim() === '') {
+        this.formData[this.activeField] = 'لا توجد';
+        setTimeout(() => {
+          const el = document.getElementsByName(this.activeField)[0] as HTMLElement;
+          if (el) {
+            el.style.color = '#FFD700'; // ذهبي شعار وادي دجلة
+          }
+        });
+      }
+
+      // 🔄 استمرار التسجيل لو كنترول لسه مضغوط
       if (this.activeField && this.isControlKeyPressed) {
         this.recognition.start();
         this.isRecognizing = true;
         return;
       }
 
-      const i = this.fields.findIndex(f => f.key === this.activeField);
-      const next = this.inputs.toArray()[i + 1];
+      // ⏭ الانتقال للحقل التالي
+      const currentIndex = this.fields.findIndex(f => f.key === this.activeField);
+      const nextField = this.fields[currentIndex + 1];
       this.activeField = '';
 
-      if (next) next.nativeElement.focus();
-      this.activeField = '';
+      if (nextField) {
+        setTimeout(() => {
+          const inputElements = this.inputs.toArray();
+          const nextInput = inputElements[currentIndex + 1];
+          if (nextInput) {
+            nextInput.nativeElement.focus();
+          }
+        }, 100);
+      }
     };
   }
 
