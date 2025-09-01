@@ -41,7 +41,9 @@ export class InjuryListComponent implements OnInit {
   getInjuries() {
     this.injuryService.getAll().subscribe({
       next: data => {
-        this.injuries = data;
+        this.injuries = data.sort((a: any, b: any) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
         this.calculateStats();
       },
       error: () => this.toastr.error('فشل في تحميل البيانات 😓')
