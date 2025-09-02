@@ -109,6 +109,7 @@ export class LostItemsListComponent implements OnInit {
     const exportData = this.lostItems.map(item => ({
       'التاريخ': item.date,
       'اليوم': item.day,
+      'الشهر': 'أغسطس',  // العمود الجديد
       'الوقت': this._SharedService.convertTo12Hour(item.time),
       'اسم المفقود': item.itemName,
       'المكان': item.location,
